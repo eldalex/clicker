@@ -1,0 +1,9 @@
+---
+nodejs_packages:
+  - nodejs
+  - npm
+backend_dir: "{{ deploy_path }}/backend"
+frontend_dir: "{{ deploy_path }}/frontend"
+frontend_build_dir: "{{ frontend_dir }}/dist"
+deploy_build_dir: "{{ deploy_path }}/build"
+service_name: click-backend

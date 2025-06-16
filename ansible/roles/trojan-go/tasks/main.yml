@@ -1,0 +1,66 @@
+---
+- name: Установить зависимые пакеты
+  apt:
+    name:
+      - unzip
+      - wget
+      - curl
+    state: present
+    update_cache: yes
+
+- name: Скачиваем архив trojan-go {{ trojan_version }}
+  get_url:
+    url: "{{ trojan_download_url }}"
+    dest: "/tmp/trojan-go-{{ trojan_arch }}.zip"
+    mode: '0644'
+
+- name: Распаковать архив trojan-go
+  unarchive:
+    src: "/tmp/trojan-go-{{ trojan_arch }}.zip"
+    dest: "/tmp"
+    remote_src: yes
+
+- name: Установить бинарь trojan-go
+  copy:
+    src: "/tmp/trojan-go"
+    dest: "{{ trojan_install_path }}"
+    remote_src: yes
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: Создать директорию для конфигурации
+  file:
+    path: "{{ trojan_config_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Скопировать конфиг trojan-go
+  template:
+    src: config.json.j2
+    dest: "{{ trojan_config_path }}"
+    mode: '0644'
+  notify: Restart trojan-go
+
+- name: Скопировать unit-файл systemd для trojan-go
+  template:
+    src: trojan-go.service.j2
+    dest: "{{ trojan_service_path }}"
+    mode: '0644'
+  notify:
+    - Reload systemd
+    - Restart trojan-go
+
+- name: Открыть порт 443 в UFW
+  ufw:
+    rule: allow
+    port: '443'
+    proto: tcp
+
+- name: Убедиться, что trojan-go запущен и включен
+  systemd:
+    name: trojan-go
+    enabled: yes
+    state: started

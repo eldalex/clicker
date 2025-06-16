@@ -1,0 +1,97 @@
+---
+- name: Установить зависимости для добавления NodeSource
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+    state: present
+    update_cache: yes
+
+- name: Добавить GPG-ключ NodeSource
+  apt_key:
+    url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+    state: present
+
+- name: Добавить репозиторий NodeSource для Node.js 18.x
+  apt_repository:
+    repo: "deb https://deb.nodesource.com/node_18.x {{ ansible_distribution_release }} main"
+    state: present
+    filename: nodesource
+
+- name: Установить/обновить Node.js (NodeSource 18.x)
+  apt:
+    name: nodejs
+    state: latest
+    update_cache: yes
+
+- name: Установить pm2 глобально через npm
+  npm:
+    name: pm2
+    global: yes
+    state: present
+
+- name: Клонировать репозиторий игры
+  git:
+    repo: "{{ git_repo }}"
+    dest: "{{ deploy_path }}"
+    version: main
+    force: yes
+
+- name: Установить зависимости бэкенда
+  npm:
+    path: "{{ backend_dir }}"
+    production: yes
+
+- name: Скопировать systemd-юнит для бэкенда
+  template:
+    src: clicker-backend.service.j2
+    dest: "/etc/systemd/system/{{ service_name }}.service"
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - Reload systemd
+    - Restart clicker backend
+
+- name: Установить зависимости фронтенда
+  npm:
+    path: "{{ frontend_dir }}"
+
+- name: Собрать фронтенд
+  command: npm run build
+  args:
+    chdir: "{{ frontend_dir }}"
+    creates: "{{ frontend_build_dir }}"
+
+- name: Создать папку для отдачи собранного фронтенда
+  file:
+    path: "{{ deploy_build_dir }}"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'
+
+- name: Копировать фронтенд в папку для Nginx
+  copy:
+    remote_src: yes
+    src: "{{ frontend_build_dir }}/"
+    dest: "{{ deploy_build_dir }}/"
+    owner: www-data
+    group: www-data
+    mode: '0755'
+  notify: Reload nginx
+
+- name: Ensure PM2 runtime directory exists
+  file:
+    path: /var/www/.pm2
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0700'
+
+- name: Убедиться, что сервис бэкенда запущен и включён
+  systemd:
+    name: "{{ service_name }}"
+    state: started
+    enabled: yes

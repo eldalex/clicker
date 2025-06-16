@@ -1,0 +1,32 @@
+server {
+    # Убираем SSL, слушаем только HTTP на 80-м порту.
+    listen 80;
+    server_name {{ domain }};
+
+    root {{ deploy_path }}/build;
+    index index.html;
+
+    # Основной блок: отдаём файлы React
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt { access_log off; log_not_found off; }
+
+    # лока для certbot
+    location ^~ /.well-known/acme-challenge/ {
+        alias /var/www/click/build/.well-known/acme-challenge/;
+        try_files $uri =404;
+    }
+
+}

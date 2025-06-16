@@ -1,0 +1,14 @@
+[Unit]
+Description=Trojan-Go Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart={{ trojan_install_path }} -config "{{ trojan_config_path }}"
+Restart=on-failure
+RestartSec=5
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target

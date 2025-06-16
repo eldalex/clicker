@@ -1,0 +1,15 @@
+[Unit]
+Description=Clicker Game Backend
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory={{ backend_dir }}
+ExecStart=/usr/bin/pm2-runtime start server.js --env production
+Restart=on-failure
+User=www-data
+Group=www-data
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

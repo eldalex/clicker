@@ -1,0 +1,8 @@
+- hosts: clicker_server
+  become: yes
+
+  roles:
+    - { role: clicker, tags: ["clicker"] }
+    - { role: nginx,   tags: ["nginx"] }
+    - { role: letsencrypt, tags: ["letsencrypt"] }
+    - { role: trojan-go,  tags: ["trojan"] }

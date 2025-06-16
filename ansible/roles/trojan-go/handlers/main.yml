@@ -1,0 +1,8 @@
+---
+- name: Reload systemd
+  command: systemctl daemon-reload
+
+- name: Restart trojan-go
+  systemd:
+    name: trojan-go
+    state: restarted

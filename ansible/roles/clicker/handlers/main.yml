@@ -1,0 +1,13 @@
+---
+- name: Reload systemd
+  command: systemctl daemon-reload
+
+- name: Restart clicker backend
+  systemd:
+    name: "{{ service_name }}"
+    state: restarted
+
+- name: Reload nginx
+  service:
+    name: nginx
+    state: reloaded

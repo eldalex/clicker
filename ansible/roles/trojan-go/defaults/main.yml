@@ -1,0 +1,8 @@
+---
+trojan_version: "v0.10.6"
+trojan_arch: "linux-amd64"
+trojan_download_url: "https://github.com/p4gefau1t/trojan-go/releases/download/{{ trojan_version }}/trojan-go-{{ trojan_arch }}.zip"
+trojan_install_path: "/usr/local/bin/trojan-go"
+trojan_config_dir: "/etc/trojan-go"
+trojan_config_path: "{{ trojan_config_dir }}/config.json"
+trojan_service_path: "/etc/systemd/system/trojan-go.service"

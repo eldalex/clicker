@@ -1,0 +1,14 @@
+---
+domain: your.rent.domain.ru
+git_repo: 'https://github.com/eldalex/clicker.git'
+deploy_path: '/var/www/click'
+trojan_password: 'Придумай твой пароль для авторизации в VPN'
+# для SSH-входа по паролю
+ansible_user: root
+ansible_ssh_pass: 'пароль рута'
+
+# для sudo/su-разрешений (если всё же используете become: yes)
+ansible_become: yes
+ansible_become_method: sudo      # или su, если у вас только root-пароль
+ansible_become_user: root
+ansible_become_pass: 'пароль рута'

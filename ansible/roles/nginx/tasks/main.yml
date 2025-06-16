@@ -1,0 +1,27 @@
+---
+- name: Установить Nginx
+  apt:
+    name: "{{ nginx_package }}"
+    state: present
+    update_cache: yes
+
+- name: Удалить default-конфиг
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Скопировать конфиг для {{ domain }}
+  template:
+    src: "{{ nginx_conf_src }}"
+    dest: "{{ nginx_conf_path }}"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload nginx
+
+- name: Включить сайт
+  file:
+    src: "{{ nginx_conf_path }}"
+    dest: "/etc/nginx/sites-enabled/{{ domain }}.conf"
+    state: link
+  notify: Reload nginx

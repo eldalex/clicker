@@ -1,0 +1,53 @@
+---
+- name: Установить Certbot
+  apt:
+    name: certbot
+    state: present
+    update_cache: yes
+
+- name: Убедиться, что каталог webroot существует
+  file:
+    path: "{{ deploy_path }}/build/.well-known/acme-challenge"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'
+
+- name: Дождаться, когда Nginx начнёт отдавать статические файлы
+  uri:
+    url: "http://{{ domain }}/"
+    return_content: no
+  register: web_ready
+  until: web_ready.status in [200,403]
+  retries: 5
+  delay: 5
+
+- name: Проверить, есть ли уже сертификат для {{ domain }}
+  stat:
+    path: "/etc/letsencrypt/live/{{ domain }}/fullchain.pem"
+  register: cert_exists
+
+- name: Reload nginx to serve .well-known challenges
+  service:
+    name: nginx
+    state: reloaded
+
+- name: Получить новый сертификат через certbot (если его ещё нет)
+  shell: >
+    certbot certonly --non-interactive --agree-tos
+    --email {{ cert_email }}
+    --webroot -w {{ deploy_path }}/build
+    -d {{ domain }}
+  when: not cert_exists.stat.exists
+  notify: Reload nginx
+
+- name: Прогнать обновление сертификатов (если уже есть)
+  shell: certbot renew --quiet --deploy-hook "systemctl reload nginx"
+  when: cert_exists.stat.exists
+
+- name: Создать Cron для автоматического продления сертификата
+  cron:
+    name: "auto-renew LetsEncrypt for {{ domain }}"
+    job: "certbot renew --quiet --deploy-hook 'systemctl reload nginx'"
+    hour: "{{ renew_hour }}"
+    minute: "{{ renew_minute }}"
