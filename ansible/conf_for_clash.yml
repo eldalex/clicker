@@ -1,0 +1,154 @@
+################################################################################
+# Clash-конфигурация для split-tunneling через Trojan
+################################################################################
+
+# 1. Служебные параметры Clash
+redir-port: 7892
+tproxy-port: 7893
+allow-lan: false
+mode: Rule
+log-level: debug
+
+# 2. DNS через HTTPS (обеспечивает анонимность и правильное разрешение имён)
+dns:
+  enable: true
+  enhanced-mode: fake-ip
+  nameserver:
+    - https://dns.google/dns-query
+    - https://cloudflare-dns.com/dns-query
+    - 1.1.1.1
+  fallback:
+    - tls://dns.google:853
+    - tls://1.1.1.1:853
+
+# 3. Прокси
+proxies:
+  - name: "trojan-LAlex-rules"
+    type: trojan
+    server: "click.l-alex.ru"
+    port: 443
+    password: "rpTI7h$AQ3SnfzM?LBWE"
+    sni: "click.l-alex.ru"
+    skip-cert-verify: false
+
+# 4. Группа прокси
+proxy-groups:
+  - name: PROXY
+    type: select
+    proxies:
+      - "trojan-LAlex-rules"
+
+# 5. Правила маршрутизации
+rules:
+  # OpenAI / ChatGPT
+  - DOMAIN-SUFFIX,chatgpt.com,PROXY
+  - DOMAIN-SUFFIX,openai.com,PROXY
+  - DOMAIN-SUFFIX,platform.openai.com,PROXY
+  - DOMAIN-SUFFIX,auth.openai.com,PROXY
+  - DOMAIN-SUFFIX,auth0.openai.com,PROXY
+
+  # LinkedIn
+  - DOMAIN-SUFFIX,linkedin.com,PROXY
+  - DOMAIN-SUFFIX,www.linkedin.com,PROXY
+  - DOMAIN-SUFFIX,*.linkedin.com,PROXY
+
+  # Discord
+  - DOMAIN-SUFFIX,discord.com,PROXY
+  - DOMAIN-SUFFIX,discordapp.com,PROXY
+  - DOMAIN-SUFFIX,discord.gg,PROXY
+  - DOMAIN-SUFFIX,discord.media,PROXY
+  - DOMAIN-SUFFIX,discordstatus.com,PROXY
+  - DOMAIN-SUFFIX,discordapp.net,PROXY
+  - DOMAIN-SUFFIX,cdn.discordapp.com,PROXY
+  - DOMAIN-SUFFIX,discord.kettingpowered.org,PROXY
+
+  # YouTube и Google-видео
+  - DOMAIN-SUFFIX,youtube.com,PROXY
+  - DOMAIN-SUFFIX,www.youtube.com,PROXY
+  - DOMAIN-SUFFIX,m.youtube.com,PROXY
+  - DOMAIN-SUFFIX,youtu.be,PROXY
+  - DOMAIN-SUFFIX,youtubei.googleapis.com,PROXY
+  - DOMAIN-SUFFIX,googlevideo.com,PROXY
+  - DOMAIN-SUFFIX,ytimg.com,PROXY
+  - DOMAIN-SUFFIX,yt3.ggpht.com,PROXY
+  - DOMAIN-SUFFIX,yt4.ggpht.com,PROXY
+  - DOMAIN-SUFFIX,ggpht.com,PROXY
+  - DOMAIN-SUFFIX,clients1.google.com,PROXY
+  - DOMAIN-SUFFIX,clients2.google.com,PROXY
+  - DOMAIN-SUFFIX,apis.google.com,PROXY
+  - DOMAIN-SUFFIX,video.google.com,PROXY
+  - DOMAIN-SUFFIX,redirector.googlevideo.com,PROXY
+  - DOMAIN-SUFFIX,manifest.googlevideo.com,PROXY
+  - DOMAIN-SUFFIX,gvt1.com,PROXY
+  - DOMAIN-SUFFIX,gvt2.com,PROXY
+  - DOMAIN-SUFFIX,gstatic.com,PROXY
+  - DOMAIN-SUFFIX,ssl.gstatic.com,PROXY
+  - DOMAIN-SUFFIX,googleapis.com,PROXY
+  - DOMAIN-SUFFIX,android.clients.google.com,PROXY
+  - DOMAIN-SUFFIX,accounts.google.com,PROXY
+  # YouTube — вспомогательные адреса
+  - DOMAIN-SUFFIX,s.youtube.com,PROXY
+  - DOMAIN-SUFFIX,suggestqueries.google.com,PROXY
+  - DOMAIN-SUFFIX,mtalk.google.com,PROXY
+
+  # Расширение Return YouTube Dislike
+  - DOMAIN-SUFFIX,returnyoutubedislikeapi.com,PROXY
+
+
+  # Instagram / Facebook / Meta
+  - DOMAIN-SUFFIX,instagram.com,PROXY
+  - DOMAIN-SUFFIX,www.instagram.com,PROXY
+  - DOMAIN-SUFFIX,i.instagram.com,PROXY
+  - DOMAIN-SUFFIX,gateway.instagram.com,PROXY
+  - DOMAIN-SUFFIX,graph.instagram.com,PROXY
+  - DOMAIN-SUFFIX,cdninstagram.com,PROXY
+  - DOMAIN-SUFFIX,scontent.cdninstagram.com,PROXY
+  - DOMAIN-SUFFIX,connect.facebook.net,PROXY
+  - DOMAIN-SUFFIX,facebook.net,PROXY
+  - DOMAIN-SUFFIX,facebook.com,PROXY
+  - DOMAIN-SUFFIX,edge-mqtt.facebook.com,PROXY
+  - DOMAIN-SUFFIX,z-p42-chat-e2ee-ig.facebook.com,PROXY
+  - DOMAIN-SUFFIX,meta.com,PROXY
+  - DOMAIN-SUFFIX,fbcdn.net,PROXY
+
+  # Oculus / Meta Quest
+  - DOMAIN-SUFFIX,oculus.com,PROXY
+  - DOMAIN-SUFFIX,www.oculus.com,PROXY
+  - DOMAIN-SUFFIX,graph.oculus.com,PROXY
+  - DOMAIN-SUFFIX,metaquest.com,PROXY
+  - DOMAIN-SUFFIX,www.metaquest.com,PROXY
+  - DOMAIN-SUFFIX,vr.facebook.com,PROXY
+  - DOMAIN-SUFFIX,oculuscdn.com,PROXY
+
+  # Amazon AWS
+  - DOMAIN-SUFFIX,amazonaws.com,PROXY
+  - DOMAIN-SUFFIX,execute-api.eu-west-3.amazonaws.com,PROXY
+
+  # JetBrains
+  - DOMAIN-SUFFIX,jetbrains.com,PROXY
+  - DOMAIN-SUFFIX,www.jetbrains.com,PROXY
+  - DOMAIN-SUFFIX,resources.jetbrains.com,PROXY
+  - DOMAIN-SUFFIX,account.jetbrains.com,PROXY
+  - DOMAIN-SUFFIX,plugins.jetbrains.com,PROXY
+  - DOMAIN-SUFFIX,download.jetbrains.com,PROXY
+
+  # GitHub Copilot
+  - DOMAIN-SUFFIX,github.com,PROXY
+  - DOMAIN-SUFFIX,api.github.com,PROXY
+  - DOMAIN-SUFFIX,githubusercontent.com,PROXY
+  - DOMAIN-SUFFIX,githubcopilot.com,PROXY
+  - DOMAIN-SUFFIX,copilot-proxy.githubusercontent.com,PROXY
+  - DOMAIN-SUFFIX,copilot-proxy.githubassets.com,PROXY
+
+  # Дополнительно
+  - DOMAIN-SUFFIX,api.ipify.org,PROXY
+  - DOMAIN-SUFFIX,speedtest.net,PROXY
+  - DOMAIN-SUFFIX,sora.com,PROXY
+  - DOMAIN-SUFFIX,rutracker.org,PROXY
+  - DOMAIN-SUFFIX,4pda.to,PROXY
+
+  # Явно напрямую
+  - DOMAIN-SUFFIX,2ip.ru,DIRECT
+
+  # Всё остальное — напрямую
+  - MATCH,DIRECT
