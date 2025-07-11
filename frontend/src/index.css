@@ -1,8 +1,8 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Comic Sans MS', sans-serif;
-  background: linear-gradient(135deg, #fceabb 0%, #f8b500 100%);
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #fff9e6 0%, #ffe0b3 100%);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -12,7 +12,7 @@ body {
 .container {
   background: white;
   padding: 1rem;
-  border-radius: 20px;
+  border-radius: 30px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.2);
   max-width: 600px;
   width: 90%;
@@ -27,8 +27,8 @@ h1, h2, h3 {
 .clicker-img {
   width: 100%;
   max-width: 300px;
-  border-radius: 20px;
-  border: 4px solid #ff9800;
+  border-radius: 24px;
+  border: 4px solid #e0a96d;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   transition: transform 0.1s ease;
 }
@@ -40,7 +40,7 @@ input {
   width: 100%;
   padding: 0.6rem;
   font-size: 1rem;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid #ccc;
   margin: 1rem 0;
   box-sizing: border-box;
@@ -50,15 +50,15 @@ button {
   width: 100%;
   padding: 0.7rem;
   font-size: 1.2rem;
-  background: #ff9800;
+  background: #e0a96d;
   color: white;
   border: none;
-  border-radius: 12px;
+  border-radius: 20px;
   cursor: pointer;
   transition: background 0.2s ease;
 }
 button:hover {
-  background: #e68900;
+  background: #d18c5b;
 }
 button:disabled {
   background: #ccc;
@@ -68,13 +68,13 @@ button:disabled {
 .rage-bar {
   width: 100%;
   height: 14px;
-  background: #ffe0e0;
-  border-radius: 10px;
+  background: #ffefef;
+  border-radius: 12px;
   margin-top: 0.5rem;
 }
 .rage-fill {
   height: 100%;
-  background: linear-gradient(to right, red, orange, yellow);
+  background: linear-gradient(to right, #ff9a9e, #fad0c4);
   transition: width 0.2s ease;
 }
 
@@ -84,7 +84,7 @@ button:disabled {
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 2em;
-  color: hotpink;
+  color: #d567a6;
   font-family: Impact, sans-serif;
   animation: boom 0.4s ease-out;
   pointer-events: none;
@@ -100,7 +100,7 @@ button:disabled {
   position: absolute;
   font-size: 1rem;
   font-weight: bold;
-  color: red;
+  color: #e06b6b;
   animation: fadeUp 1s ease-out forwards;
   pointer-events: none;
 }
