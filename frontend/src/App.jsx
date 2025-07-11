@@ -45,7 +45,9 @@ function App() {
 
   useEffect(() => {
     fetch('/api/scores').then(res => res.json()).then(setLeaderboard);
+  }, []);
 
+  useEffect(() => {
     const decayInterval = setInterval(() => {
       const now = Date.now();
       const idleTime = now - lastClickTimeRef.current;
