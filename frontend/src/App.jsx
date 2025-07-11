@@ -43,30 +43,13 @@ function App() {
   const lastClickTimeRef = useRef(Date.now());
   const activeClickDurationRef = useRef(0);
 
-  // Load saved progress
-  useEffect(() => {
-    const savedScore = parseInt(localStorage.getItem('score'), 10);
-    if (!isNaN(savedScore)) {
-      setScore(savedScore);
-    }
-    const savedUnlocked = localStorage.getItem('unlocked');
-    if (savedUnlocked) {
-      try {
-        const parsed = JSON.parse(savedUnlocked);
-        if (Array.isArray(parsed)) {
-          setUnlocked(new Set(parsed));
-        }
-      } catch (e) {
-        console.error('Failed to parse saved achievements', e);
-      }
-    }
-  }, []);
-
   // Save progress on change
   useEffect(() => {
+    if (!started) return;
+    localStorage.setItem('playerName', name);
     localStorage.setItem('score', score);
     localStorage.setItem('unlocked', JSON.stringify(Array.from(unlocked)));
-  }, [score, unlocked]);
+  }, [name, score, unlocked, started]);
 
   useEffect(() => {
     fetch('/api/scores').then(res => res.json()).then(setLeaderboard);
@@ -90,7 +73,32 @@ function App() {
   }, [imageIndex]);
 
   const startGame = () => {
-    if (name.trim()) setStarted(true);
+    const trimmed = name.trim();
+    if (!trimmed) return;
+
+    const savedName = localStorage.getItem('playerName');
+    if (savedName === trimmed) {
+      const savedScore = parseInt(localStorage.getItem('score'), 10);
+      if (!isNaN(savedScore)) {
+        setScore(savedScore);
+      }
+      const savedUnlocked = localStorage.getItem('unlocked');
+      if (savedUnlocked) {
+        try {
+          const parsed = JSON.parse(savedUnlocked);
+          if (Array.isArray(parsed)) {
+            setUnlocked(new Set(parsed));
+          }
+        } catch (e) {
+          console.error('Failed to parse saved achievements', e);
+        }
+      }
+    } else {
+      setScore(0);
+      setUnlocked(new Set());
+    }
+
+    setStarted(true);
   };
 
   const getCatImage = () => {
@@ -181,13 +189,6 @@ function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, score })
     }).then(res => res.json()).then(setLeaderboard);
-  };
-
-  const resetProgress = () => {
-    localStorage.removeItem('score');
-    localStorage.removeItem('unlocked');
-    setScore(0);
-    setUnlocked(new Set());
   };
 
   return (
