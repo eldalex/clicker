@@ -5,7 +5,7 @@
 
 для работы надо заполнить параметры в ansible/group_vars/all.yml
 
-+ domain - твой арендованый домен
++ domain - твой арендованный домен
 + trojan_password - придумай пароль для vpn
 + ansible_user/ansible_ssh_pass - креды твоего арендованного vps 
 + Дополнительно указать ip твоего VPS в inventory.ini
