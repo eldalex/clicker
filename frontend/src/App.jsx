@@ -191,6 +191,14 @@ function App() {
     }).then(res => res.json()).then(setLeaderboard);
   };
 
+  const resetProgress = () => {
+    localStorage.removeItem('playerName');
+    localStorage.removeItem('score');
+    localStorage.removeItem('unlocked');
+    setScore(0);
+    setUnlocked(new Set());
+  };
+
   return (
     <div className="container">
       {!started ? (
