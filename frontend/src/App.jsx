@@ -191,7 +191,6 @@ function App() {
     }).then(res => res.json()).then(setLeaderboard);
   };
 
-
   return (
     <div className="container">
       {!started ? (
@@ -255,6 +254,7 @@ function App() {
           </div>
 
           <button onClick={submitScore} disabled={score === 0}>Отправить результат</button>
+          <button onClick={resetProgress}>Сбросить прогресс</button>
         </div>
       )}
     </div>
