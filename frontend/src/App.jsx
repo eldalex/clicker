@@ -43,6 +43,31 @@ function App() {
   const lastClickTimeRef = useRef(Date.now());
   const activeClickDurationRef = useRef(0);
 
+  // Load saved progress
+  useEffect(() => {
+    const savedScore = parseInt(localStorage.getItem('score'), 10);
+    if (!isNaN(savedScore)) {
+      setScore(savedScore);
+    }
+    const savedUnlocked = localStorage.getItem('unlocked');
+    if (savedUnlocked) {
+      try {
+        const parsed = JSON.parse(savedUnlocked);
+        if (Array.isArray(parsed)) {
+          setUnlocked(new Set(parsed));
+        }
+      } catch (e) {
+        console.error('Failed to parse saved achievements', e);
+      }
+    }
+  }, []);
+
+  // Save progress on change
+  useEffect(() => {
+    localStorage.setItem('score', score);
+    localStorage.setItem('unlocked', JSON.stringify(Array.from(unlocked)));
+  }, [score, unlocked]);
+
   useEffect(() => {
     fetch('/api/scores').then(res => res.json()).then(setLeaderboard);
   }, []);
@@ -158,6 +183,13 @@ function App() {
     }).then(res => res.json()).then(setLeaderboard);
   };
 
+  const resetProgress = () => {
+    localStorage.removeItem('score');
+    localStorage.removeItem('unlocked');
+    setScore(0);
+    setUnlocked(new Set());
+  };
+
   return (
     <div className="container">
       {!started ? (
@@ -221,6 +253,7 @@ function App() {
           </div>
 
           <button onClick={submitScore} disabled={score === 0}>Отправить результат</button>
+          <button onClick={resetProgress}>Сбросить прогресс</button>
         </div>
       )}
     </div>
