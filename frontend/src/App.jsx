@@ -40,6 +40,12 @@ function App() {
   const [rageEffect, setRageEffect] = useState(false);
   const [calmEffect, setCalmEffect] = useState(false);
 
+  const [targetVisible, setTargetVisible] = useState(false);
+  const [targetPos, setTargetPos] = useState({ x: 0, y: 0 });
+  const gameRef = useRef(null);
+  const targetMoveRef = useRef(null);
+  const targetHideRef = useRef(null);
+
   const [imageIndex, setImageIndex] = useState(0);
   const clickTimerRef = useRef(null);
   const lastClickTimeRef = useRef(Date.now());
@@ -83,6 +89,38 @@ function App() {
     }, 1000);
     return () => clearInterval(interval);
   }, [autoClickers, started]);
+
+  useEffect(() => {
+    if (!started) return;
+
+    const moveTarget = () => {
+      if (!gameRef.current) return;
+      const rect = gameRef.current.getBoundingClientRect();
+      const x = Math.random() * (rect.width - 40);
+      const y = Math.random() * (rect.height - 40);
+      setTargetPos({ x, y });
+    };
+
+    const hideTarget = () => {
+      setTargetVisible(false);
+      clearInterval(targetMoveRef.current);
+    };
+
+    const showTarget = () => {
+      setTargetVisible(true);
+      moveTarget();
+      targetMoveRef.current = setInterval(moveTarget, 1000);
+      targetHideRef.current = setTimeout(hideTarget, 30000);
+    };
+
+    const interval = setInterval(showTarget, 60000);
+
+    return () => {
+      clearInterval(interval);
+      clearInterval(targetMoveRef.current);
+      clearTimeout(targetHideRef.current);
+    };
+  }, [started]);
 
   const startGame = () => {
     const trimmed = name.trim();
@@ -216,6 +254,13 @@ function App() {
     }
   };
 
+  const handleTargetClick = () => {
+    addPoints(50);
+    setTargetVisible(false);
+    clearInterval(targetMoveRef.current);
+    clearTimeout(targetHideRef.current);
+  };
+
   const submitScore = () => {
     fetch('/api/score', {
       method: 'POST',
@@ -244,8 +289,17 @@ function App() {
         </div>
       ) : (
         <div className="game-wrapper">
-          <div className="game">
+        <div className="game" ref={gameRef}>
           <h1>Привет, {name}!</h1>
+          <div
+            className="target"
+            style={{
+              left: `${targetPos.x}px`,
+              top: `${targetPos.y}px`,
+              display: targetVisible ? 'block' : 'none'
+            }}
+            onClick={handleTargetClick}
+          />
           <div className={`clicker-container ${rageEffect ? 'shake' : ''} ${calmEffect ? 'fade-glow' : ''}`}>
             <img
               src={getCatImage()}
