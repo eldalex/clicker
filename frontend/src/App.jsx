@@ -26,6 +26,8 @@ function App() {
   const [name, setName] = useState('');
   const [started, setStarted] = useState(false);
   const [score, setScore] = useState(0);
+  const [coins, setCoins] = useState(0);
+  const [autoClickers, setAutoClickers] = useState(0);
   const [maxCPS, setMaxCPS] = useState(0);
   const [unlocked, setUnlocked] = useState(new Set());
   const [leaderboard, setLeaderboard] = useState([]);
@@ -48,8 +50,10 @@ function App() {
     if (!started) return;
     localStorage.setItem('playerName', name);
     localStorage.setItem('score', score);
+    localStorage.setItem('coins', coins);
+    localStorage.setItem('autoClickers', autoClickers);
     localStorage.setItem('unlocked', JSON.stringify(Array.from(unlocked)));
-  }, [name, score, unlocked, started]);
+  }, [name, score, coins, autoClickers, unlocked, started]);
 
   useEffect(() => {
     fetch('/api/scores').then(res => res.json()).then(setLeaderboard);
@@ -72,6 +76,14 @@ function App() {
     return () => clearInterval(decayInterval);
   }, [imageIndex]);
 
+  useEffect(() => {
+    if (!started || autoClickers === 0) return;
+    const interval = setInterval(() => {
+      addPoints(autoClickers);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [autoClickers, started]);
+
   const startGame = () => {
     const trimmed = name.trim();
     if (!trimmed) return;
@@ -81,6 +93,14 @@ function App() {
       const savedScore = parseInt(localStorage.getItem('score'), 10);
       if (!isNaN(savedScore)) {
         setScore(savedScore);
+      }
+      const savedCoins = parseInt(localStorage.getItem('coins'), 10);
+      if (!isNaN(savedCoins)) {
+        setCoins(savedCoins);
+      }
+      const savedClickers = parseInt(localStorage.getItem('autoClickers'), 10);
+      if (!isNaN(savedClickers)) {
+        setAutoClickers(savedClickers);
       }
       const savedUnlocked = localStorage.getItem('unlocked');
       if (savedUnlocked) {
@@ -95,6 +115,8 @@ function App() {
       }
     } else {
       setScore(0);
+      setCoins(0);
+      setAutoClickers(0);
       setUnlocked(new Set());
     }
 
@@ -103,6 +125,27 @@ function App() {
 
   const getCatImage = () => {
     return catImages[imageIndex];
+  };
+
+  const addPoints = (amount) => {
+    setScore(prevScore => {
+      const newScore = prevScore + amount;
+
+      setCoins(prevCoins => prevCoins + amount);
+
+      setUnlocked(prevUnlocked => {
+        const updated = new Set(prevUnlocked);
+        achievementsList.forEach(ach => {
+          if (!updated.has(ach.id) && ach.condition({ score: newScore, maxCPS })) {
+            updated.add(ach.id);
+            playSound('/fanfare.mp3');
+          }
+        });
+        return updated;
+      });
+
+      return newScore;
+    });
   };
 
   const handleClick = () => {
@@ -122,20 +165,10 @@ function App() {
     const cps = clickTimesRef.current.length;
     if (cps > maxCPS) setMaxCPS(cps);
 
-    const newScore = score + 1;
-    setScore(newScore);
+    addPoints(1);
     playSound('/meow.mp3');
     setBoomText(['+1', 'MEOW!', 'WOW'][Math.floor(Math.random() * 3)]);
     setTimeout(() => setBoomText(null), 500);
-
-    const newUnlocked = new Set(unlocked);
-    achievementsList.forEach(ach => {
-      if (!newUnlocked.has(ach.id) && ach.condition({ score: newScore, maxCPS: cps })) {
-        newUnlocked.add(ach.id);
-        playSound('/fanfare.mp3');
-      }
-    });
-    setUnlocked(newUnlocked);
 
     if (cps >= 6) {
       if (!rageStart) {
@@ -147,7 +180,7 @@ function App() {
         if (!rageActive && duration >= 10000) {
           setRageActive(true);
           setRageEffect(true);
-          setScore(prev => prev + 100);
+          addPoints(100);
           playSound('/fanfare.mp3');
           setBoomText('🔥 ЯРОСТЬ!');
 
@@ -191,6 +224,15 @@ function App() {
     }).then(res => res.json()).then(setLeaderboard);
   };
 
+  const buyClicker = () => {
+    const cost = 100 * Math.pow(2, autoClickers);
+    if (coins >= cost) {
+      setCoins(coins - cost);
+      setAutoClickers(autoClickers + 1);
+    }
+  };
+
+  const clickerCost = 100 * Math.pow(2, autoClickers);
 
   return (
     <div className="container">
@@ -201,7 +243,8 @@ function App() {
           <button onClick={startGame}>Играть</button>
         </div>
       ) : (
-        <div className="game">
+        <div className="game-wrapper">
+          <div className="game">
           <h1>Привет, {name}!</h1>
           <div className={`clicker-container ${rageEffect ? 'shake' : ''} ${calmEffect ? 'fade-glow' : ''}`}>
             <img
@@ -255,6 +298,14 @@ function App() {
           </div>
 
           <button onClick={submitScore} disabled={score === 0}>Отправить результат</button>
+          </div>
+          <div className="side-panel">
+            <div>Клик-койны: {coins}</div>
+            <div>Автокликеров: {autoClickers}</div>
+            <button onClick={buyClicker} disabled={coins < clickerCost}>
+              Купить кликер ({clickerCost})
+            </button>
+          </div>
         </div>
       )}
     </div>
