@@ -128,19 +128,24 @@ function App() {
   };
 
   const addPoints = (amount) => {
-    const newScore = score + amount;
-    const newCoins = coins + amount;
-    setScore(newScore);
-    setCoins(newCoins);
+    setScore(prevScore => {
+      const newScore = prevScore + amount;
 
-    const newUnlocked = new Set(unlocked);
-    achievementsList.forEach(ach => {
-      if (!newUnlocked.has(ach.id) && ach.condition({ score: newScore, maxCPS })) {
-        newUnlocked.add(ach.id);
-        playSound('/fanfare.mp3');
-      }
+      setCoins(prevCoins => prevCoins + amount);
+
+      setUnlocked(prevUnlocked => {
+        const updated = new Set(prevUnlocked);
+        achievementsList.forEach(ach => {
+          if (!updated.has(ach.id) && ach.condition({ score: newScore, maxCPS })) {
+            updated.add(ach.id);
+            playSound('/fanfare.mp3');
+          }
+        });
+        return updated;
+      });
+
+      return newScore;
     });
-    setUnlocked(newUnlocked);
   };
 
   const handleClick = () => {
