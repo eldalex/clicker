@@ -37,11 +37,13 @@
     dest: "{{ deploy_path }}"
     version: main
     force: yes
+  notify: Restart clicker backend
 
 - name: Установить зависимости бэкенда
   npm:
     path: "{{ backend_dir }}"
     production: yes
+  notify: Restart clicker backend
 
 - name: Скопировать systemd-юнит для бэкенда
   template:
@@ -62,7 +64,6 @@
   command: npm run build
   args:
     chdir: "{{ frontend_dir }}"
-    creates: "{{ frontend_build_dir }}"
 
 - name: Создать папку для отдачи собранного фронтенда
   file:
