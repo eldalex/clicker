@@ -9,7 +9,8 @@ const SWAP_MS = 350;   // slower, more visible
 const CLEAR_MS = 380;  // clearer fade/scale
 const FALL_MS = 350;   // fall matches swap speed
 
-const COLORS = ['#e57373', '#64b5f6', '#81c784', '#ffb74d', '#ba68c8', '#4dd0e1'];
+// Colors tuned for higher contrast between blue/cyan
+const COLORS = ['#e57373', '#1565c0', '#81c784', '#ffb74d', '#ba68c8', '#4dd0e1'];
 
 let GEM_ID = 1;
 const makeGem = (t) => ({ id: `g${GEM_ID++}`, t });
