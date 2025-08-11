@@ -61,6 +61,12 @@ export default function LongcatGame() {
   useEffect(() => { runningRef.current = running; }, [running]);
   const snakeRef = useRef(snake);
   useEffect(() => { snakeRef.current = snake; }, [snake]);
+  const gridWRef = useRef(gridWidth);
+  const gridHRef = useRef(gridHeight);
+  useEffect(() => { gridWRef.current = gridWidth; }, [gridWidth]);
+  useEffect(() => { gridHRef.current = gridHeight; }, [gridHeight]);
+  const wallSetRef = useRef(wallSet);
+  useEffect(() => { wallSetRef.current = wallSet; }, [wallSet]);
 
   // Инициализация уровня / рестарт
   const setupLevel = (idx) => {
@@ -91,9 +97,9 @@ export default function LongcatGame() {
 
   // Вспомогательные функции: проверка клетки и установка направления, когда движение остановлено
   const isValidCell = (x, y, bodySet) => {
-    if (x < 0 || x >= gridWidth || y < 0 || y >= gridHeight) return false;
+    if (x < 0 || x >= gridWRef.current || y < 0 || y >= gridHRef.current) return false;
     const k = keyOf(x, y);
-    if (wallSet.has(k)) return false;
+    if (wallSetRef.current.has(k)) return false;
     if (bodySet.has(k)) return false;
     return true;
   };
@@ -113,6 +119,10 @@ export default function LongcatGame() {
     setStatus(STATUS.running);
   };
 
+  // Ref на актуальную функцию выбора направления для обработчика клавиатуры
+  const chooseDirRef = useRef(setDirectionImmediate);
+  useEffect(() => { chooseDirRef.current = setDirectionImmediate; });
+
   // Обработка клавиш (только выбор направления при остановке)
   useEffect(() => {
     const mapKeyToDir = (e) => {
@@ -127,7 +137,7 @@ export default function LongcatGame() {
     const onKey = (e) => {
       const next = mapKeyToDir(e);
       if (!next) return;
-      setDirectionImmediate(next);
+      chooseDirRef.current(next);
       e.preventDefault();
       e.stopPropagation();
     };
