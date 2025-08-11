@@ -1,0 +1,12 @@
+{
+  "name": "Level 1",
+  "size": { "width": 3, "height": 3 },
+  "legend": { "#": "wall", ".": "empty" },
+  "tiles": [
+    "...",
+    "...",
+    "..."
+  ],
+  "cat_start": [1, 1]
+}
+
