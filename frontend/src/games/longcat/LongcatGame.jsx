@@ -115,23 +115,28 @@ export default function LongcatGame() {
 
   // Обработка клавиш (только выбор направления при остановке)
   useEffect(() => {
+    const mapKeyToDir = (e) => {
+      const k = e.key;
+      const c = e.code;
+      if (k === 'ArrowUp' || c === 'ArrowUp' || k === 'Up' || c === 'Up' || c === 'KeyW' || k === 'w' || k === 'W' || c === 'Numpad8') return 'up';
+      if (k === 'ArrowDown' || c === 'ArrowDown' || k === 'Down' || c === 'Down' || c === 'KeyS' || k === 's' || k === 'S' || c === 'Numpad2') return 'down';
+      if (k === 'ArrowLeft' || c === 'ArrowLeft' || k === 'Left' || c === 'Left' || c === 'KeyA' || k === 'a' || k === 'A' || c === 'Numpad4') return 'left';
+      if (k === 'ArrowRight' || c === 'ArrowRight' || k === 'Right' || c === 'Right' || c === 'KeyD' || k === 'd' || k === 'D' || c === 'Numpad6') return 'right';
+      return null;
+    };
     const onKey = (e) => {
-      const k = e.key || e.code;
-      let next = null;
-      if (k === 'ArrowUp' || k === 'Up' || k === 'w' || k === 'W') next = 'up';
-      else if (k === 'ArrowDown' || k === 'Down' || k === 's' || k === 'S') next = 'down';
-      else if (k === 'ArrowLeft' || k === 'Left' || k === 'a' || k === 'A') next = 'left';
-      else if (k === 'ArrowRight' || k === 'Right' || k === 'd' || k === 'D') next = 'right';
-      else { return; }
+      const next = mapKeyToDir(e);
+      if (!next) return;
       setDirectionImmediate(next);
       e.preventDefault();
+      e.stopPropagation();
     };
-    // Вешаем на window и document для надежности
-    window.addEventListener('keydown', onKey, { passive: false });
-    document.addEventListener('keydown', onKey, { passive: false });
+    // Перехватываем на стадии capture, чтобы гарантированно поймать
+    window.addEventListener('keydown', onKey, { passive: false, capture: true });
+    document.addEventListener('keydown', onKey, { passive: false, capture: true });
     return () => {
-      window.removeEventListener('keydown', onKey);
-      document.removeEventListener('keydown', onKey);
+      window.removeEventListener('keydown', onKey, { capture: true });
+      document.removeEventListener('keydown', onKey, { capture: true });
     };
   }, []);
 
