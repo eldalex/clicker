@@ -1,8 +1,36 @@
-// Набор уровней Longcat: размеры и стены (x,y)
+// Набор уровней Longcat: размеры, стены и старт
 // Координаты: x в [0..w-1], y в [0..h-1]
+// Поддержка гибкого редактирования: можно задать либо список стен, либо карту символов.
+// Символы карты: '#' — стена, '.' — пусто, 'S' — старт кота.
+
+function fromMap(map) {
+  const h = map.length;
+  const w = map[0]?.length || 0;
+  const walls = [];
+  let start = null;
+  for (let y = 0; y < h; y++) {
+    const row = map[y];
+    if (row.length !== w) throw new Error('Нерегулярная ширина строк карты уровня');
+    for (let x = 0; x < w; x++) {
+      const ch = row[x];
+      if (ch === '#') walls.push([x, y]);
+      else if (ch === 'S') start = [x, y];
+    }
+  }
+  return { w, h, walls, start };
+}
 
 // Longcat: 5 уровней по скринам (минимальные размеры + явный периметр)
 export const LEVELS = [
+  // L0 — 3x3, кот в центре
+  (() => {
+    return fromMap([
+      '...',
+      '.S.',
+      '...'
+    ]);
+  })(),
+
   // L1 — «пустая комната» (только периметр)
   (() => {
     const w = 8, h = 8;
@@ -95,5 +123,4 @@ export const LEVELS = [
     return { w, h, walls };
   })(),
 ];
-
 

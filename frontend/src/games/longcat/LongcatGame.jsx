@@ -31,8 +31,12 @@ export default function LongcatGame() {
 
   // Состояние игры
   const [snake, setSnake] = useState(() => {
-    // старт: первая свободная клетка сверху-слева
+    // старт: явные координаты из уровня или первая свободная клетка сверху-слева
     const wallSet = new Set(level.walls.map(([x,y]) => keyOf(x,y)));
+    const explicit = Array.isArray(level.start) && level.start.length === 2 ? level.start : null;
+    if (explicit && !wallSet.has(keyOf(explicit[0], explicit[1]))) {
+      return [explicit];
+    }
     for (let y = 0; y < level.h; y++) {
       for (let x = 0; x < level.w; x++) {
         if (!wallSet.has(keyOf(x,y))) return [[x, y]];
@@ -77,7 +81,12 @@ export default function LongcatGame() {
     // стартовая позиция
     const wset = new Set(L.walls.map(([x,y]) => keyOf(x,y)));
     let start = null;
-    for (let y = 0; y < L.h && !start; y++) for (let x = 0; x < L.w; x++) if (!wset.has(keyOf(x,y))) { start = [x,y]; break; }
+    const explicit = Array.isArray(L.start) && L.start.length === 2 ? L.start : null;
+    if (explicit && !wset.has(keyOf(explicit[0], explicit[1]))) {
+      start = explicit;
+    } else {
+      for (let y = 0; y < L.h && !start; y++) for (let x = 0; x < L.w; x++) if (!wset.has(keyOf(x,y))) { start = [x,y]; break; }
+    }
     const initialSnake = [start || [0,0]];
     setSnake(initialSnake);
     setDir('right');
