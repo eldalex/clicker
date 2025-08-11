@@ -147,6 +147,67 @@ export default function LongcatGame() {
     return () => clearInterval(id);
   }, [running, tickMs, status]);
 
+  // Свайпы/перетаскивание
+  const boardRef = useRef(null);
+  const startRef = useRef(null); // {x,y}
+  const activeRef = useRef(false);
+
+  const setDirectionByDelta = (dx, dy) => {
+    if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return; // порог
+    const horiz = Math.abs(dx) >= Math.abs(dy);
+    const wanted = horiz ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
+    const opp = { up: 'down', down: 'up', left: 'right', right: 'left' };
+    if (opp[wanted] !== dirRef.current) setDir(wanted);
+  };
+
+  const cellFromPoint = (clientX, clientY) => {
+    const el = boardRef.current;
+    if (!el) return null;
+    const rect = el.getBoundingClientRect();
+    const GAP = 2; // как в CSS
+    const totalW = rect.width;
+    const totalH = rect.height;
+    const cellW = (totalW - GAP * (gridWidth - 1)) / gridWidth;
+    const cellH = (totalH - GAP * (gridHeight - 1)) / gridHeight;
+    const rx = clientX - rect.left;
+    const ry = clientY - rect.top;
+    const cx = Math.floor(rx / (cellW + GAP));
+    const cy = Math.floor(ry / (cellH + GAP));
+    if (cx < 0 || cx >= gridWidth || cy < 0 || cy >= gridHeight) return null;
+    return [cx, cy];
+  };
+
+  const onPointerDown = (e) => {
+    // Разрешаем свайп в любом месте на тач; на мыши — только с головы
+    const isTouch = e.pointerType === 'touch' || e.type === 'touchstart';
+    let ok = true;
+    if (!isTouch) {
+      const cell = cellFromPoint(e.clientX ?? e.touches?.[0]?.clientX, e.clientY ?? e.touches?.[0]?.clientY);
+      const head = snake[snake.length - 1];
+      ok = !!cell && head && cell[0] === head[0] && cell[1] === head[1];
+    }
+    if (!ok) return;
+    activeRef.current = true;
+    const cx = e.clientX ?? (e.touches ? e.touches[0].clientX : 0);
+    const cy = e.clientY ?? (e.touches ? e.touches[0].clientY : 0);
+    startRef.current = { x: cx, y: cy };
+    e.preventDefault();
+  };
+  const onPointerMove = (e) => {
+    if (!activeRef.current) return;
+    const cx = e.clientX ?? (e.touches ? e.touches[0].clientX : 0);
+    const cy = e.clientY ?? (e.touches ? e.touches[0].clientY : 0);
+    const { x, y } = startRef.current || { x: cx, y: cy };
+    setDirectionByDelta(cx - x, cy - y);
+    e.preventDefault();
+  };
+  const onPointerUp = (e) => {
+    if (!activeRef.current) return;
+    activeRef.current = false;
+    startRef.current = null;
+    e.preventDefault();
+  };
+
   // Кнопки
   const onStartPause = () => {
     setRunning(r => { const nr = !r; setStatus(nr ? STATUS.running : STATUS.paused); return nr; });
@@ -175,10 +236,18 @@ export default function LongcatGame() {
         </div>
       </div>
 
-      <div className="longcat-board-frame">
+      <div className="longcat-board-frame"
+           onMouseDown={onPointerDown}
+           onMouseMove={onPointerMove}
+           onMouseUp={onPointerUp}
+           onTouchStart={onPointerDown}
+           onTouchMove={onPointerMove}
+           onTouchEnd={onPointerUp}
+      >
         <div
           className="longcat-board"
           style={{ gridTemplateColumns: `repeat(${gridWidth}, var(--cell-size))`, gridTemplateRows: `repeat(${gridHeight}, var(--cell-size))` }}
+          ref={boardRef}
         >
           {Array.from({ length: gridHeight }).map((_, y) => (
             Array.from({ length: gridWidth }).map((__, x) => {
