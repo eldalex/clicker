@@ -100,6 +100,9 @@ export default function LongcatGame() {
     setVisitedSet(v);
     filledRef.current = v.size;
     setFilledCount(v.size);
+    // сброс жеста/перетаскивания при смене уровня
+    activeRef.current = false;
+    startRef.current = null;
   };
 
   useEffect(() => { setupLevel(levelIndex); /* eslint-disable-next-line */ }, [levelIndex]);
@@ -156,6 +159,14 @@ export default function LongcatGame() {
     return () => {
       window.removeEventListener('keydown', onKey, { capture: true });
       document.removeEventListener('keydown', onKey, { capture: true });
+    };
+  }, []);
+
+  // На размонтировании подстрахуемся и сбросим возможное «залипание» жеста
+  useEffect(() => {
+    return () => {
+      activeRef.current = false;
+      startRef.current = null;
     };
   }, []);
 
@@ -317,6 +328,12 @@ export default function LongcatGame() {
     e.preventDefault();
   };
 
+  // Сброс «жеста» при уходе курсора/отмене касания, чтобы не залипало состояние
+  const onPointerCancel = (e) => {
+    activeRef.current = false;
+    startRef.current = null;
+  };
+
   // Кнопки
   const onRestart = () => setupLevel(levelIndex);
   const onNextLevel = () => { if (status === STATUS.complete) setLevelIndex(i => (i + 1) % LEVELS.length); };
@@ -345,9 +362,11 @@ export default function LongcatGame() {
            onMouseDown={onPointerDown}
            onMouseMove={onPointerMove}
            onMouseUp={onPointerUp}
+           onMouseLeave={onPointerCancel}
            onTouchStart={onPointerDown}
            onTouchMove={onPointerMove}
            onTouchEnd={onPointerUp}
+           onTouchCancel={onPointerCancel}
       >
         <div className="longcat-overlay">
           {status === STATUS.complete && <div className="badge win">Уровень пройден!</div>}
