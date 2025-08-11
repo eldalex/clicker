@@ -85,32 +85,41 @@ export default function LongcatGame() {
 
   useEffect(() => { setupLevel(levelIndex); /* eslint-disable-next-line */ }, [levelIndex]);
 
-  // Обработка клавиш (только смена направления, без Start/Pause)
+  // Вспомогательные функции: проверка клетки и установка направления, когда движение остановлено
+  const isValidCell = (x, y, bodySet) => {
+    if (x < 0 || x >= gridWidth || y < 0 || y >= gridHeight) return false;
+    const k = keyOf(x, y);
+    if (wallSet.has(k)) return false;
+    if (bodySet.has(k)) return false;
+    return true;
+  };
+
+  const setDirectionImmediate = (wanted) => {
+    if (!wanted) return;
+    if (running) return; // нельзя менять направление во время движения
+    const head = snake[snake.length - 1];
+    const d = DIRS[wanted];
+    const bodySet = new Set(snake.map(([x,y]) => keyOf(x,y)));
+    const nx = head[0] + d.dx; const ny = head[1] + d.dy;
+    if (!isValidCell(nx, ny, bodySet)) return; // не стартуем в препятствие
+    dirRef.current = wanted;
+    setDir(wanted);
+    setRunning(true);
+    setStatus(STATUS.running);
+  };
+
+  // Обработка клавиш (только выбор направления при остановке)
   useEffect(() => {
     const onKey = (e) => {
       const k = e.key;
-      let next = dirRef.current;
+      let next = null;
       if (k === 'ArrowUp' || k === 'w' || k === 'W') next = 'up';
       else if (k === 'ArrowDown' || k === 's' || k === 'S') next = 'down';
       else if (k === 'ArrowLeft' || k === 'a' || k === 'A') next = 'left';
       else if (k === 'ArrowRight' || k === 'd' || k === 'D') next = 'right';
       else { return; }
-      // запрет разворота на 180
-      const opp = { up: 'down', down: 'up', left: 'right', right: 'left' };
-      if (!next) return;
-      if (!running) {
-        dirRef.current = next;
-        setDir(next);
-        setRunning(true);
-        setStatus(STATUS.running);
-        e.preventDefault();
-        return;
-      }
-      if (next !== dirRef.current && opp[next] !== dirRef.current) {
-        dirRef.current = next;
-        setDir(next);
-        e.preventDefault();
-      }
+      setDirectionImmediate(next);
+      e.preventDefault();
     };
     document.addEventListener('keydown', onKey, { passive: false });
     return () => document.removeEventListener('keydown', onKey, { passive: false });
@@ -157,10 +166,60 @@ export default function LongcatGame() {
     });
   };
 
+  // Альтернативный шаг с учётом правил: двигаемся прямо, на препятствии ждём ввода, Game Over только если ходов нет
+  const doStep = () => {
+    setSnake(prev => {
+      const cur = prev[prev.length - 1];
+      const { dx, dy } = DIRS[dirRef.current] || { dx: 0, dy: 0 };
+      const nx = cur[0] + dx;
+      const ny = cur[1] + dy;
+      const bodySetAll = new Set(prev.map(([x,y]) => keyOf(x,y)));
+      const aheadValid = (nx >= 0 && nx < gridWidth && ny >= 0 && ny < gridHeight) && !wallSet.has(keyOf(nx, ny)) && !bodySetAll.has(keyOf(nx, ny));
+      if (!aheadValid) {
+        // Проверим наличие любых допустимых направлений
+        const hasAlternative = Object.values(DIRS).some(({ dx: ddx, dy: ddy }) => {
+          const tx = cur[0] + ddx; const ty = cur[1] + ddy;
+          const kk = keyOf(tx, ty);
+          return (tx >= 0 && tx < gridWidth && ty >= 0 && ty < gridHeight) && !wallSet.has(kk) && !bodySetAll.has(kk);
+        });
+        if (!hasAlternative) {
+          setStatus(STATUS.over);
+          setRunning(false);
+          return prev;
+        }
+        // Иначе ждём выбора игрока
+        setRunning(false);
+        setStatus(STATUS.paused);
+        return prev;
+      }
+
+      // Выполняем шаг вперёд
+      const nextSnake = [...prev, [nx, ny]];
+      const kk = keyOf(nx, ny);
+      const isNew = !visitedRef.current.has(kk);
+      if (isNew) {
+        visitedRef.current.add(kk);
+        setVisitedSet(new Set(visitedRef.current));
+      }
+      setTicks(t => t + 1);
+
+      const newVisitedSize = filledRef.current + (isNew ? 1 : 0);
+      filledRef.current = newVisitedSize;
+      setFilledCount(newVisitedSize);
+      if (newVisitedSize >= totalFreeCells) {
+        setStatus(STATUS.complete);
+        setRunning(false);
+      } else {
+        if (running) setStatus(STATUS.running);
+      }
+      return nextSnake;
+    });
+  };
+
   // Таймер
   useEffect(() => {
     if (!running || status === STATUS.complete || status === STATUS.over) return;
-    const id = setInterval(step, tickMs);
+    const id = setInterval(doStep, tickMs);
     return () => clearInterval(id);
   }, [running, tickMs, status]);
 
@@ -173,18 +232,7 @@ export default function LongcatGame() {
     if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return; // порог
     const horiz = Math.abs(dx) >= Math.abs(dy);
     const wanted = horiz ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
-    const opp = { up: 'down', down: 'up', left: 'right', right: 'left' };
-    if (!running) {
-      dirRef.current = wanted;
-      setDir(wanted);
-      setRunning(true);
-      setStatus(STATUS.running);
-      return;
-    }
-    if (wanted !== dirRef.current && opp[wanted] !== dirRef.current) {
-      dirRef.current = wanted;
-      setDir(wanted);
-    }
+    setDirectionImmediate(wanted);
   };
 
   const cellFromPoint = (clientX, clientY) => {
