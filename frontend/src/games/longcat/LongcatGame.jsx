@@ -57,6 +57,10 @@ export default function LongcatGame() {
   // Для запрета мгновенного разворота
   const dirRef = useRef(dir);
   useEffect(() => { dirRef.current = dir; }, [dir]);
+  const runningRef = useRef(running);
+  useEffect(() => { runningRef.current = running; }, [running]);
+  const snakeRef = useRef(snake);
+  useEffect(() => { snakeRef.current = snake; }, [snake]);
 
   // Инициализация уровня / рестарт
   const setupLevel = (idx) => {
@@ -96,10 +100,11 @@ export default function LongcatGame() {
 
   const setDirectionImmediate = (wanted) => {
     if (!wanted) return;
-    if (running) return; // нельзя менять направление во время движения
-    const head = snake[snake.length - 1];
+    if (runningRef.current) return; // нельзя менять направление во время движения
+    const curSnake = snakeRef.current;
+    const head = curSnake[curSnake.length - 1];
     const d = DIRS[wanted];
-    const bodySet = new Set(snake.map(([x,y]) => keyOf(x,y)));
+    const bodySet = new Set(curSnake.map(([x,y]) => keyOf(x,y)));
     const nx = head[0] + d.dx; const ny = head[1] + d.dy;
     if (!isValidCell(nx, ny, bodySet)) return; // не стартуем в препятствие
     dirRef.current = wanted;
