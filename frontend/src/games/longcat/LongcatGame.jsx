@@ -116,18 +116,23 @@ export default function LongcatGame() {
   // Обработка клавиш (только выбор направления при остановке)
   useEffect(() => {
     const onKey = (e) => {
-      const k = e.key;
+      const k = e.key || e.code;
       let next = null;
-      if (k === 'ArrowUp' || k === 'w' || k === 'W') next = 'up';
-      else if (k === 'ArrowDown' || k === 's' || k === 'S') next = 'down';
-      else if (k === 'ArrowLeft' || k === 'a' || k === 'A') next = 'left';
-      else if (k === 'ArrowRight' || k === 'd' || k === 'D') next = 'right';
+      if (k === 'ArrowUp' || k === 'Up' || k === 'w' || k === 'W') next = 'up';
+      else if (k === 'ArrowDown' || k === 'Down' || k === 's' || k === 'S') next = 'down';
+      else if (k === 'ArrowLeft' || k === 'Left' || k === 'a' || k === 'A') next = 'left';
+      else if (k === 'ArrowRight' || k === 'Right' || k === 'd' || k === 'D') next = 'right';
       else { return; }
       setDirectionImmediate(next);
       e.preventDefault();
     };
+    // Вешаем на window и document для надежности
+    window.addEventListener('keydown', onKey, { passive: false });
     document.addEventListener('keydown', onKey, { passive: false });
-    return () => document.removeEventListener('keydown', onKey, { passive: false });
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.removeEventListener('keydown', onKey);
+    };
   }, []);
 
   // Один шаг
