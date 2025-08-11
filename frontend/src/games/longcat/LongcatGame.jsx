@@ -99,6 +99,7 @@ export default function LongcatGame() {
       const opp = { up: 'down', down: 'up', left: 'right', right: 'left' };
       if (!next) return;
       if (!running) {
+        dirRef.current = next;
         setDir(next);
         setRunning(true);
         setStatus(STATUS.running);
@@ -106,6 +107,7 @@ export default function LongcatGame() {
         return;
       }
       if (next !== dirRef.current && opp[next] !== dirRef.current) {
+        dirRef.current = next;
         setDir(next);
         e.preventDefault();
       }
@@ -173,12 +175,14 @@ export default function LongcatGame() {
     const wanted = horiz ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
     const opp = { up: 'down', down: 'up', left: 'right', right: 'left' };
     if (!running) {
+      dirRef.current = wanted;
       setDir(wanted);
       setRunning(true);
       setStatus(STATUS.running);
       return;
     }
     if (wanted !== dirRef.current && opp[wanted] !== dirRef.current) {
+      dirRef.current = wanted;
       setDir(wanted);
     }
   };
