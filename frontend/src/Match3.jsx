@@ -113,25 +113,19 @@ export default function Match3() {
 
       const isNarrow = window.matchMedia && window.matchMedia('(max-width: 640px)').matches;
 
-      // Desktop or wide layouts: if width fits, keep default regardless of height
-      if (!isNarrow && maxW >= defaultTotalW) {
+      // Desktop/wide: always keep default size, no autosize
+      if (!isNarrow) {
         setCell(DEFAULT_CELL);
         return;
       }
 
+      // Mobile: fit by both width and height
       const availW = Math.max(0, maxW - FRAME_PAD * 2);
       const widthCell = Math.floor((availW - (COLS - 1) * GAP) / COLS);
-
-      if (isNarrow) {
-        // On small screens also respect height to avoid overflow
-        const availH = Math.max(0, viewportH - rect.top - 24 - FRAME_PAD * 2);
-        const heightCell = Math.floor((availH - (ROWS - 1) * GAP) / ROWS);
-        const next = Math.max(24, Math.min(DEFAULT_CELL, Math.min(widthCell, heightCell)));
-        setCell(next);
-      } else {
-        const next = Math.max(24, Math.min(DEFAULT_CELL, widthCell));
-        setCell(next);
-      }
+      const availH = Math.max(0, viewportH - rect.top - 24 - FRAME_PAD * 2);
+      const heightCell = Math.floor((availH - (ROWS - 1) * GAP) / ROWS);
+      const next = Math.max(24, Math.min(DEFAULT_CELL, Math.min(widthCell, heightCell)));
+      setCell(next);
     };
     calc();
     const ro = new ResizeObserver(calc);
