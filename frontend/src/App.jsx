@@ -1,6 +1,7 @@
 // frontend/src/App.jsx
 import React, { useState, useRef, useEffect } from 'react';
 import Match3 from './Match3';
+import LongcatGame from './games/longcat/LongcatGame';
 
 const catImages = [
   '/cat1.png',
@@ -294,6 +295,7 @@ function App() {
           <div className="game-choices">
             <button className="game-card" onClick={() => setSelectedGame('clicker')}>🐱 Кликер</button>
             <button className="game-card" onClick={() => setSelectedGame('match3')}>🟩 Три в ряд</button>
+            <button className="game-card" onClick={() => setSelectedGame('longcat')}>🐍 Longcat</button>
           </div>
         </div>
       ) : selectedGame === 'match3' ? (
@@ -302,6 +304,13 @@ function App() {
             <button onClick={resetToSelector}>← Назад к выбору</button>
           </div>
           <Match3 />
+        </div>
+      ) : selectedGame === 'longcat' ? (
+        <div>
+          <div style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
+            <button onClick={resetToSelector}>← Назад к выбору</button>
+          </div>
+          <LongcatGame />
         </div>
       ) : !started ? (
         <div className="start">
