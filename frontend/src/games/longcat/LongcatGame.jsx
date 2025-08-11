@@ -50,7 +50,9 @@ export default function LongcatGame() {
   const wallSet = useMemo(() => new Set(walls.map(([x,y]) => keyOf(x,y))), [walls]);
   const totalFreeCells = gridWidth * gridHeight - wallSet.size;
   const [visitedSet, setVisitedSet] = useState(() => new Set());
-  const filledCount = visitedSet.size;
+  const visitedRef = useRef(new Set());
+  const [filledCount, setFilledCount] = useState(0);
+  const filledRef = useRef(0);
 
   // Для запрета мгновенного разворота
   const dirRef = useRef(dir);
@@ -75,7 +77,10 @@ export default function LongcatGame() {
     const v = new Set();
     const [sx, sy] = initialSnake[0];
     if (!wset.has(keyOf(sx, sy))) v.add(keyOf(sx, sy));
+    visitedRef.current = new Set(v);
     setVisitedSet(v);
+    filledRef.current = v.size;
+    setFilledCount(v.size);
   };
 
   useEffect(() => { setupLevel(levelIndex); /* eslint-disable-next-line */ }, [levelIndex]);
@@ -100,7 +105,7 @@ export default function LongcatGame() {
       }
       // запрет разворота на 180
       const opp = { up: 'down', down: 'up', left: 'right', right: 'left' };
-      if (next && opp[next] !== dirRef.current) {
+      if (next && next !== dirRef.current && opp[next] !== dirRef.current) {
         setDir(next);
         if (!running) { setRunning(true); setStatus(STATUS.running); }
         e.preventDefault();
@@ -117,6 +122,17 @@ export default function LongcatGame() {
       const { dx, dy } = DIRS[dirRef.current] || { dx: 0, dy: 0 };
       const nx = cur[0] + dx;
       const ny = cur[1] + dy;
+      // проверим, есть ли вообще допустимый ход (тупик)
+      const bodySetAll = new Set(prev.map(([x,y]) => keyOf(x,y)));
+      const hasMove = Object.values(DIRS).some(({dx:ddx, dy:ddy}) => {
+        const tx = cur[0] + ddx; const ty = cur[1] + ddy;
+        const kk = keyOf(tx, ty);
+        if (tx < 0 || tx >= gridWidth || ty < 0 || ty >= gridHeight) return false;
+        if (wallSet.has(kk)) return false;
+        if (bodySetAll.has(kk)) return false;
+        return true;
+      });
+      if (!hasMove) { setStatus(STATUS.over); setRunning(false); return prev; }
       // границы
       if (nx < 0 || nx >= gridWidth || ny < 0 || ny >= gridHeight) {
         setStatus(STATUS.over); setRunning(false); return prev;
@@ -124,17 +140,22 @@ export default function LongcatGame() {
       const k = keyOf(nx, ny);
       if (wallSet.has(k)) { setStatus(STATUS.over); setRunning(false); return prev; }
       // столкновение с телом
-      const bodySet = new Set(prev.map(([x,y]) => keyOf(x,y)));
-      if (bodySet.has(k)) { setStatus(STATUS.over); setRunning(false); return prev; }
+      if (bodySetAll.has(k)) { setStatus(STATUS.over); setRunning(false); return prev; }
 
       // движение: наращиваем, хвост не удаляем (заполняем поле)
       const nextSnake = [...prev, [nx, ny]];
-      const isNew = !visitedSet.has(k);
-      if (isNew) setVisitedSet(v => { const nv = new Set(v); nv.add(k); return nv; });
+      const isNew = !visitedRef.current.has(k);
+      if (isNew) {
+        visitedRef.current.add(k);
+        const snapshot = new Set(visitedRef.current);
+        setVisitedSet(snapshot);
+      }
       setTicks(t => t + 1);
 
       // завершение уровня
-      const newVisitedSize = visitedSet.size + (isNew ? 1 : 0);
+      const newVisitedSize = filledRef.current + (isNew ? 1 : 0);
+      filledRef.current = newVisitedSize;
+      setFilledCount(newVisitedSize);
       if (newVisitedSize >= totalFreeCells) {
         setStatus(STATUS.complete);
         setRunning(false);
@@ -162,7 +183,7 @@ export default function LongcatGame() {
     const horiz = Math.abs(dx) >= Math.abs(dy);
     const wanted = horiz ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
     const opp = { up: 'down', down: 'up', left: 'right', right: 'left' };
-    if (opp[wanted] !== dirRef.current) {
+    if (wanted !== dirRef.current && opp[wanted] !== dirRef.current) {
       setDir(wanted);
       if (!running) { setRunning(true); setStatus(STATUS.running); }
     }
@@ -252,6 +273,10 @@ export default function LongcatGame() {
            onTouchMove={onPointerMove}
            onTouchEnd={onPointerUp}
       >
+        <div className="longcat-overlay">
+          {status === STATUS.complete && <div className="badge win">Уровень пройден!</div>}
+          {status === STATUS.over && <div className="badge lose">Game Over</div>}
+        </div>
         <div
           className="longcat-board"
           style={{ gridTemplateColumns: `repeat(${gridWidth}, var(--cell-size))`, gridTemplateRows: `repeat(${gridHeight}, var(--cell-size))` }}

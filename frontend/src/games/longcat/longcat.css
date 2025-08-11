@@ -11,6 +11,7 @@
   touch-action: none; /* отключаем нативные жесты браузера */
   -webkit-user-select: none;
   user-select: none;
+  position: relative; /* для оверлея */
 }
 .longcat-board {
   display: grid;
@@ -25,3 +26,33 @@
 .cell.head  { background: #d68150; box-shadow: 0 0 0 2px #5a3c2a inset, 0 0 0 2px #fff5e6; }
 
 .longcat-controls button { padding: 0.5rem 0.75rem; }
+
+/* Оверлеи статуса */
+.longcat-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.badge {
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.25);
+  animation: pop 300ms ease-out;
+}
+.badge.win { background: #4caf50; }
+.badge.lose { background: #e53935; animation: shake 500ms ease-in-out; }
+
+@keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes shake {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+  100% { transform: translateX(0); }
+}
