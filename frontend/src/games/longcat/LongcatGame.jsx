@@ -95,14 +95,19 @@ export default function LongcatGame() {
           setStatus(newState ? STATUS.running : STATUS.paused);
           return newState;
         });
+        e.preventDefault();
         return;
       }
       // запрет разворота на 180
       const opp = { up: 'down', down: 'up', left: 'right', right: 'left' };
-      if (next && opp[next] !== dirRef.current) setDir(next);
+      if (next && opp[next] !== dirRef.current) {
+        setDir(next);
+        if (!running) { setRunning(true); setStatus(STATUS.running); }
+        e.preventDefault();
+      }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    document.addEventListener('keydown', onKey, { passive: false });
+    return () => document.removeEventListener('keydown', onKey, { passive: false });
   }, []);
 
   // Один шаг
@@ -157,7 +162,10 @@ export default function LongcatGame() {
     const horiz = Math.abs(dx) >= Math.abs(dy);
     const wanted = horiz ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
     const opp = { up: 'down', down: 'up', left: 'right', right: 'left' };
-    if (opp[wanted] !== dirRef.current) setDir(wanted);
+    if (opp[wanted] !== dirRef.current) {
+      setDir(wanted);
+      if (!running) { setRunning(true); setStatus(STATUS.running); }
+    }
   };
 
   const cellFromPoint = (clientX, clientY) => {

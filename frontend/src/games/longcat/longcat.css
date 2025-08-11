@@ -8,6 +8,9 @@
   padding: 10px;
   border-radius: 16px;
   box-shadow: inset 0 0 0 2px #e0a96d44;
+  touch-action: none; /* отключаем нативные жесты браузера */
+  -webkit-user-select: none;
+  user-select: none;
 }
 .longcat-board {
   display: grid;
