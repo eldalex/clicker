@@ -5,7 +5,7 @@ const ROWS = 8;
 const COLS = 8;
 const DEFAULT_CELL = 48;
 const GAP = 6;
-const PAD = 10; // CSS padding in .match3-board
+const FRAME_PAD = 10; // CSS padding in .match3-frame
 const SWAP_MS = 350;   // slower, more visible
 const CLEAR_MS = 380;  // clearer fade/scale
 const FALL_MS = 350;   // fall matches swap speed
@@ -97,21 +97,41 @@ export default function Match3() {
 
   const boardW = COLS * cell + (COLS - 1) * GAP; // content area (without padding)
   const boardH = ROWS * cell + (ROWS - 1) * GAP;
-  const totalW = boardW + PAD * 2;
-  const totalH = boardH + PAD * 2;
+  const totalW = boardW + FRAME_PAD * 2;
+  const totalH = boardH + FRAME_PAD * 2;
 
   React.useEffect(() => {
     const calc = () => {
       const el = wrapRef.current;
       if (!el) return;
       const maxW = el.clientWidth;
-      const availW = Math.max(0, maxW - PAD * 2);
-      const cellW = Math.floor((availW - (COLS - 1) * GAP) / COLS);
       const rect = el.getBoundingClientRect();
-      const availH = Math.max(0, window.innerHeight - rect.top - 24);
-      const cellH = Math.floor((availH - PAD * 2 - (ROWS - 1) * GAP) / ROWS);
-      const next = Math.max(24, Math.min(64, cellW, cellH));
-      setCell(next || 24);
+      const viewportH = window.innerHeight;
+
+      const defaultTotalW = COLS * DEFAULT_CELL + (COLS - 1) * GAP + FRAME_PAD * 2;
+      const defaultTotalH = ROWS * DEFAULT_CELL + (ROWS - 1) * GAP + FRAME_PAD * 2;
+
+      // If default size fits, use it (desktop case)
+      if (maxW >= defaultTotalW && viewportH - rect.top - 24 >= defaultTotalH) {
+        setCell(DEFAULT_CELL);
+        return;
+      }
+
+      const availW = Math.max(0, maxW - FRAME_PAD * 2);
+      const widthCell = Math.floor((availW - (COLS - 1) * GAP) / COLS);
+
+      const availH = Math.max(0, viewportH - rect.top - 24 - FRAME_PAD * 2);
+      const heightCell = Math.floor((availH - (ROWS - 1) * GAP) / ROWS);
+
+      // Prefer width-based; fall back to height if needed
+      let next = widthCell;
+      const totalHWithWidth = ROWS * next + (ROWS - 1) * GAP + FRAME_PAD * 2;
+      if (totalHWithWidth > viewportH - rect.top - 24) {
+        next = Math.min(widthCell, heightCell);
+      }
+
+      next = Math.max(24, Math.min(DEFAULT_CELL, next));
+      setCell(next);
     };
     calc();
     const ro = new ResizeObserver(calc);
@@ -232,7 +252,8 @@ export default function Match3() {
         <button onClick={reset} disabled={busy}>Сброс</button>
       </div>
       <div className="match3-board-wrap" ref={wrapRef}>
-        <div className="match3-board" style={{ width: `${boardW}px`, height: `${boardH}px` }}>
+        <div className="match3-frame">
+          <div className="match3-board" style={{ width: `${boardW}px`, height: `${boardH}px` }}>
         {gems.map(({ r, c, gem }) => {
           const isSel = selected && selected.r === r && selected.c === c;
           const clearing = clearingIds.has(gem.id);
@@ -252,6 +273,7 @@ export default function Match3() {
             </button>
           );
         })}
+          </div>
         </div>
       </div>
     </div>

@@ -190,13 +190,15 @@ button:disabled {
 /* Match-3 styles */
 .match3-wrapper { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
 .match3-info { display: flex; gap: 0.5rem; align-items: center; }
-.match3-board {
-  position: relative;
+.match3-frame {
   background: #f7efe3;
-  padding: 10px; /* soft inset from border */
+  padding: 10px; /* visual inset */
   border-radius: 16px;
   box-shadow: inset 0 0 0 2px #e0a96d44;
-  text-align: left; /* prevent center shift due to parent */
+}
+.match3-board {
+  position: relative;
+  text-align: left;
 }
 .match3-board-wrap { width: 100%; display: flex; justify-content: center; }
 .match3-gem {
