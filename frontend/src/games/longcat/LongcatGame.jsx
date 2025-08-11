@@ -85,7 +85,7 @@ export default function LongcatGame() {
 
   useEffect(() => { setupLevel(levelIndex); /* eslint-disable-next-line */ }, [levelIndex]);
 
-  // Обработка клавиш
+  // Обработка клавиш (только смена направления, без Start/Pause)
   useEffect(() => {
     const onKey = (e) => {
       const k = e.key;
@@ -94,15 +94,7 @@ export default function LongcatGame() {
       else if (k === 'ArrowDown' || k === 's' || k === 'S') next = 'down';
       else if (k === 'ArrowLeft' || k === 'a' || k === 'A') next = 'left';
       else if (k === 'ArrowRight' || k === 'd' || k === 'D') next = 'right';
-      else if (k === ' ') { // пробел: Start/Pause
-        setRunning(r => {
-          const newState = !r;
-          setStatus(newState ? STATUS.running : STATUS.paused);
-          return newState;
-        });
-        e.preventDefault();
-        return;
-      }
+      else { return; }
       // запрет разворота на 180
       const opp = { up: 'down', down: 'up', left: 'right', right: 'left' };
       if (next && next !== dirRef.current && opp[next] !== dirRef.current) {
@@ -122,17 +114,6 @@ export default function LongcatGame() {
       const { dx, dy } = DIRS[dirRef.current] || { dx: 0, dy: 0 };
       const nx = cur[0] + dx;
       const ny = cur[1] + dy;
-      // проверим, есть ли вообще допустимый ход (тупик)
-      const bodySetAll = new Set(prev.map(([x,y]) => keyOf(x,y)));
-      const hasMove = Object.values(DIRS).some(({dx:ddx, dy:ddy}) => {
-        const tx = cur[0] + ddx; const ty = cur[1] + ddy;
-        const kk = keyOf(tx, ty);
-        if (tx < 0 || tx >= gridWidth || ty < 0 || ty >= gridHeight) return false;
-        if (wallSet.has(kk)) return false;
-        if (bodySetAll.has(kk)) return false;
-        return true;
-      });
-      if (!hasMove) { setStatus(STATUS.over); setRunning(false); return prev; }
       // границы
       if (nx < 0 || nx >= gridWidth || ny < 0 || ny >= gridHeight) {
         setStatus(STATUS.over); setRunning(false); return prev;
@@ -140,6 +121,7 @@ export default function LongcatGame() {
       const k = keyOf(nx, ny);
       if (wallSet.has(k)) { setStatus(STATUS.over); setRunning(false); return prev; }
       // столкновение с телом
+      const bodySetAll = new Set(prev.map(([x,y]) => keyOf(x,y)));
       if (bodySetAll.has(k)) { setStatus(STATUS.over); setRunning(false); return prev; }
 
       // движение: наращиваем, хвост не удаляем (заполняем поле)
@@ -238,9 +220,6 @@ export default function LongcatGame() {
   };
 
   // Кнопки
-  const onStartPause = () => {
-    setRunning(r => { const nr = !r; setStatus(nr ? STATUS.running : STATUS.paused); return nr; });
-  };
   const onRestart = () => setupLevel(levelIndex);
   const onNextLevel = () => { if (status === STATUS.complete) setLevelIndex(i => (i + 1) % LEVELS.length); };
 
@@ -259,7 +238,6 @@ export default function LongcatGame() {
           <span>Уровень: {levelIndex + 1}/{LEVELS.length}</span>
         </div>
         <div className="longcat-controls">
-          <button onClick={onStartPause}>{running ? 'Pause' : 'Start'}</button>
           <button onClick={onRestart}>Restart</button>
           <button onClick={onNextLevel} disabled={status !== STATUS.complete}>Next Level</button>
         </div>
@@ -294,7 +272,7 @@ export default function LongcatGame() {
           ))}
         </div>
       </div>
-      <div style={{ fontSize: '0.85rem', color: '#666' }}>Управление: стрелки или WASD. Пробел — Start/Pause.</div>
+      <div style={{ fontSize: '0.85rem', color: '#666' }}>Управление: стрелки/WASD или свайп/перетаскивание головы.</div>
     </div>
   );
 }
