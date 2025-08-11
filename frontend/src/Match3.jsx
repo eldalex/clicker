@@ -5,9 +5,9 @@ const ROWS = 8;
 const COLS = 8;
 const CELL = 48;
 const GAP = 6;
-const SWAP_MS = 200;
-const CLEAR_MS = 220;
-const FALL_MS = 220;
+const SWAP_MS = 350;   // slower, more visible
+const CLEAR_MS = 380;  // clearer fade/scale
+const FALL_MS = 350;   // fall matches swap speed
 
 const COLORS = ['#e57373', '#64b5f6', '#81c784', '#ffb74d', '#ba68c8', '#4dd0e1'];
 
