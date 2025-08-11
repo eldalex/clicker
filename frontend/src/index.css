@@ -193,11 +193,12 @@ button:disabled {
 .match3-board {
   position: relative;
   background: #f7efe3;
-  padding: 0; /* use full area for gems */
+  padding: 10px; /* soft inset from border */
   border-radius: 16px;
   box-shadow: inset 0 0 0 2px #e0a96d44;
   text-align: left; /* prevent center shift due to parent */
 }
+.match3-board-wrap { width: 100%; display: inline-block; }
 .match3-gem {
   position: absolute;
   width: 48px; height: 48px;
