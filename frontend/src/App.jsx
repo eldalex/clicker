@@ -1,5 +1,6 @@
 // frontend/src/App.jsx
 import React, { useState, useRef, useEffect } from 'react';
+import Match3 from './Match3';
 
 const catImages = [
   '/cat1.png',
@@ -23,6 +24,7 @@ const playSound = (src) => {
 };
 
 function App() {
+  const [selectedGame, setSelectedGame] = useState(null); // 'clicker' | 'match3'
   const [name, setName] = useState('');
   const [started, setStarted] = useState(false);
   const [score, setScore] = useState(0);
@@ -62,7 +64,7 @@ function App() {
   }, [name, score, coins, autoClickers, unlocked, started]);
 
   useEffect(() => {
-    fetch('/api/scores').then(res => res.json()).then(setLeaderboard);
+    fetch('/api/scores').then(res => res.json()).then(setLeaderboard).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -159,6 +161,11 @@ function App() {
     }
 
     setStarted(true);
+  };
+
+  const resetToSelector = () => {
+    setStarted(false);
+    setSelectedGame(null);
   };
 
   const getCatImage = () => {
@@ -281,15 +288,36 @@ function App() {
 
   return (
     <div className="container">
-      {!started ? (
+      {!selectedGame ? (
+        <div className="start">
+          <h2>Выберите игру</h2>
+          <div className="game-choices">
+            <button className="game-card" onClick={() => setSelectedGame('clicker')}>🐱 Кликер</button>
+            <button className="game-card" onClick={() => setSelectedGame('match3')}>🟩 Три в ряд</button>
+          </div>
+        </div>
+      ) : selectedGame === 'match3' ? (
+        <div>
+          <div style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
+            <button onClick={resetToSelector}>← Назад к выбору</button>
+          </div>
+          <Match3 />
+        </div>
+      ) : !started ? (
         <div className="start">
           <h2>Имя:</h2>
           <input value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && startGame()} />
           <button onClick={startGame}>Играть</button>
+          <div style={{ marginTop: '0.5rem' }}>
+            <button onClick={resetToSelector}>← Назад к выбору</button>
+          </div>
         </div>
       ) : (
         <div className="game-wrapper">
         <div className="game" ref={gameRef}>
+          <div style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
+            <button onClick={resetToSelector}>← Назад к выбору</button>
+          </div>
           <h1>Привет, {name}!</h1>
           <div
             className="target"
