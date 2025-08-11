@@ -3,7 +3,7 @@ import React, { useMemo, useRef, useState } from 'react';
 
 const ROWS = 8;
 const COLS = 8;
-const CELL = 48;
+const DEFAULT_CELL = 48;
 const GAP = 6;
 const PAD = 10; // CSS padding in .match3-board
 const SWAP_MS = 350;   // slower, more visible
@@ -93,10 +93,10 @@ export default function Match3() {
   const [clearingIds, setClearingIds] = useState(new Set());
 
   const wrapRef = useRef(null);
-  const [scale, setScale] = useState(1);
+  const [cell, setCell] = useState(DEFAULT_CELL);
 
-  const boardW = COLS * CELL + (COLS - 1) * GAP; // content area (without padding)
-  const boardH = ROWS * CELL + (ROWS - 1) * GAP;
+  const boardW = COLS * cell + (COLS - 1) * GAP; // content area (without padding)
+  const boardH = ROWS * cell + (ROWS - 1) * GAP;
   const totalW = boardW + PAD * 2;
   const totalH = boardH + PAD * 2;
 
@@ -104,9 +104,14 @@ export default function Match3() {
     const calc = () => {
       const el = wrapRef.current;
       if (!el) return;
-      const w = el.clientWidth;
-      const s = Math.min(1, w / totalW);
-      setScale(s);
+      const maxW = el.clientWidth;
+      const availW = Math.max(0, maxW - PAD * 2);
+      const cellW = Math.floor((availW - (COLS - 1) * GAP) / COLS);
+      const rect = el.getBoundingClientRect();
+      const availH = Math.max(0, window.innerHeight - rect.top - 24);
+      const cellH = Math.floor((availH - PAD * 2 - (ROWS - 1) * GAP) / ROWS);
+      const next = Math.max(24, Math.min(64, cellW, cellH));
+      setCell(next || 24);
     };
     calc();
     const ro = new ResizeObserver(calc);
@@ -118,10 +123,12 @@ export default function Match3() {
       window.removeEventListener('orientationchange', calc);
       window.removeEventListener('resize', calc);
     };
-  }, [totalW]);
+  }, []);
 
   const pos = (r, c) => ({
-    transform: `translate(${c * (CELL + GAP)}px, ${r * (CELL + GAP)}px)`,
+    transform: `translate(${c * (cell + GAP)}px, ${r * (cell + GAP)}px)`,
+    width: `${cell}px`,
+    height: `${cell}px`,
   });
 
   const swapCells = (g, a, b) => {
@@ -224,11 +231,8 @@ export default function Match3() {
         <div>Очки: {score}</div>
         <button onClick={reset} disabled={busy}>Сброс</button>
       </div>
-      <div className="match3-board-wrap" ref={wrapRef} style={{ height: `${totalH * scale}px` }}>
-        <div
-          className="match3-board"
-          style={{ width: `${boardW}px`, height: `${boardH}px`, transform: `scale(${scale})`, transformOrigin: 'top left' }}
-        >
+      <div className="match3-board-wrap" ref={wrapRef}>
+        <div className="match3-board" style={{ width: `${boardW}px`, height: `${boardH}px` }}>
         {gems.map(({ r, c, gem }) => {
           const isSel = selected && selected.r === r && selected.c === c;
           const clearing = clearingIds.has(gem.id);
@@ -241,7 +245,10 @@ export default function Match3() {
               disabled={busy}
               aria-label={`cell-${r}-${c}`}
             >
-              <div className={`gem-box${clearing ? ' clearing' : ''}`} style={{ background: COLORS[gem.t] }} />
+              <div
+                className={`gem-box${clearing ? ' clearing' : ''}`}
+                style={{ background: COLORS[gem.t], width: `${cell}px`, height: `${cell}px` }}
+              />
             </button>
           );
         })}
