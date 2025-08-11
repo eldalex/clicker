@@ -97,9 +97,16 @@ export default function LongcatGame() {
       else { return; }
       // запрет разворота на 180
       const opp = { up: 'down', down: 'up', left: 'right', right: 'left' };
-      if (next && next !== dirRef.current && opp[next] !== dirRef.current) {
+      if (!next) return;
+      if (!running) {
         setDir(next);
-        if (!running) { setRunning(true); setStatus(STATUS.running); }
+        setRunning(true);
+        setStatus(STATUS.running);
+        e.preventDefault();
+        return;
+      }
+      if (next !== dirRef.current && opp[next] !== dirRef.current) {
+        setDir(next);
         e.preventDefault();
       }
     };
@@ -165,9 +172,14 @@ export default function LongcatGame() {
     const horiz = Math.abs(dx) >= Math.abs(dy);
     const wanted = horiz ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
     const opp = { up: 'down', down: 'up', left: 'right', right: 'left' };
+    if (!running) {
+      setDir(wanted);
+      setRunning(true);
+      setStatus(STATUS.running);
+      return;
+    }
     if (wanted !== dirRef.current && opp[wanted] !== dirRef.current) {
       setDir(wanted);
-      if (!running) { setRunning(true); setStatus(STATUS.running); }
     }
   };
 
