@@ -505,43 +505,26 @@ export default function LongcatGame() {
                 if (idx === -1) return <div key={k} className="cell empty" />;
 
                 let bg = null;
-                let rot = 0;
                 if (idx === snake.length - 1) {
-                  // head: base head_right + rotate to current dir
-                  bg = assets.head_right;
-                  rot = angleForDir(dirRef.current);
+                  // Голова: спрайт по текущему направлению
+                  bg = headSpriteByDir(dirRef.current);
                 } else if (idx === 0) {
+                  // Хвост: спрайт по направлению на соседний сегмент
                   if (snake.length === 1) {
-                    bg = assets.head_right;
-                    rot = angleForDir(dirRef.current);
+                    bg = headSpriteByDir(dirRef.current);
                   } else {
                     const prev = snake[1];
                     const tail = snake[0];
-                    const d = dirBetween(tail, prev);
-                    bg = assets.tail_right;
-                    rot = angleForDir(d);
+                    bg = tailSpriteByDir(prev, tail);
                   }
                 } else {
+                  // Тело: прямой или поворотный спрайт по соседям
                   const prev = snake[idx - 1];
                   const cur  = snake[idx];
                   const next = snake[idx + 1];
-                  const d1 = dirBetween(prev, cur);
-                  const d2 = dirBetween(cur, next);
-                  const straight = ((d1 === 'left' && d2 === 'right') || (d1 === 'right' && d2 === 'left') || (d1 === 'up' && d2 === 'down') || (d1 === 'down' && d2 === 'up'));
-                  if (straight) {
-                    bg = assets.body_horizontal;
-                    rot = (d1 === 'up' || d1 === 'down') ? 90 : 0;
-                  } else {
-                    // corner: use body_turn_ur and rotate to match
-                    bg = assets.body_turn_ur;
-                    const set = new Set([d1, d2]);
-                    if (set.has('up') && set.has('right')) rot = 0;
-                    else if (set.has('right') && set.has('down')) rot = 90;
-                    else if (set.has('down') && set.has('left')) rot = 180;
-                    else if (set.has('left') && set.has('up')) rot = 270;
-                  }
+                  bg = bodySpriteByNeighbors(prev, cur, next);
                 }
-                return <div key={k} className="cell sprite" style={{ backgroundImage: `url(${bg})`, transform: `rotate(${rot}deg)` }} />;
+                return <div key={k} className="cell sprite" style={{ backgroundImage: `url(${bg})` }} />;
               })
             ))}
           </div>
