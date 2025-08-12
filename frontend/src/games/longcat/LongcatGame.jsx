@@ -24,6 +24,9 @@ const keyOf = (x, y) => `${x},${y}`;
 export default function LongcatGame() {
   // Параметры уровня
   const [levelIndex, setLevelIndex] = useState(0);
+  const [levelsOpen, setLevelsOpen] = useState(false);
+  const [levelFilter, setLevelFilter] = useState('');
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)').matches : false);
   const level = LEVELS[levelIndex % LEVELS.length];
   const [gridWidth, setGridWidth] = useState(level.w);
   const [gridHeight, setGridHeight] = useState(level.h);
@@ -71,6 +74,19 @@ export default function LongcatGame() {
   useEffect(() => { gridHRef.current = gridHeight; }, [gridHeight]);
   const wallSetRef = useRef(wallSet);
   useEffect(() => { wallSetRef.current = wallSet; }, [wallSet]);
+
+  // viewport watcher for mobile conditional UI
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mq = window.matchMedia('(max-width: 767px)');
+    const onChange = () => setIsMobile(mq.matches);
+    if (mq.addEventListener) mq.addEventListener('change', onChange);
+    else mq.addListener(onChange);
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener('change', onChange);
+      else mq.removeListener(onChange);
+    };
+  }, []);
 
   // Инициализация уровня / рестарт
   const setupLevel = (idx) => {
@@ -344,6 +360,35 @@ export default function LongcatGame() {
 
   const onSelectLevel = (idx) => {
     setLevelIndex(idx % LEVELS.length);
+    setLevelsOpen(false);
+  };
+
+  // Drawer accessibility helpers
+  const drawerRef = useRef(null);
+  const drawerTitleRef = useRef(null);
+  useEffect(() => {
+    if (levelsOpen) {
+      setTimeout(() => {
+        if (drawerTitleRef.current) drawerTitleRef.current.focus();
+        else if (drawerRef.current) {
+          const focusable = drawerRef.current.querySelector('button, [href], input, [tabindex]:not([tabindex="-1"])');
+          if (focusable) focusable.focus();
+        }
+      }, 0);
+    }
+  }, [levelsOpen]);
+
+  const onDrawerKeyDown = (e) => {
+    if (!levelsOpen || !drawerRef.current) return;
+    if (e.key === 'Escape') { setLevelsOpen(false); }
+    if (e.key === 'Tab') {
+      const nodes = drawerRef.current.querySelectorAll('button, [href], input, [tabindex]:not([tabindex="-1"])');
+      if (!nodes.length) return;
+      const first = nodes[0];
+      const last = nodes[nodes.length - 1];
+      if (e.shiftKey && document.activeElement === first) { last.focus(); e.preventDefault(); }
+      else if (!e.shiftKey && document.activeElement === last) { first.focus(); e.preventDefault(); }
+    }
   };
 
   return (
@@ -358,7 +403,13 @@ export default function LongcatGame() {
         </div>
         <div className="longcat-controls">
           <button onClick={onRestart}>Restart</button>
-          <button onClick={onNextLevel} disabled={status !== STATUS.complete}>Next Level</button>
+          {isMobile ? (
+            <button onClick={() => setLevelsOpen(true)} aria-expanded={levelsOpen} aria-controls="levels-drawer">
+              Уровни ({levelIndex + 1}/{LEVELS.length})
+            </button>
+          ) : (
+            <button onClick={onNextLevel} disabled={status !== STATUS.complete}>Next Level</button>
+          )}
         </div>
       </div>
       <div className="longcat-main">
@@ -410,6 +461,65 @@ export default function LongcatGame() {
             ))}
           </div>
         </aside>
+
+        {isMobile && (
+          <>
+            {levelsOpen && <div className="levels-drawer-backdrop" onClick={() => setLevelsOpen(false)} />}
+            <div
+              id="levels-drawer"
+              className={`levels-drawer ${levelsOpen ? 'open' : ''}`}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="levels-drawer-title"
+              ref={drawerRef}
+              onKeyDown={onDrawerKeyDown}
+            >
+              <div className="levels-drawer-header">
+                <h3 id="levels-drawer-title" tabIndex={-1} ref={drawerTitleRef}>Выбор уровня</h3>
+                <button className="close-btn" onClick={() => setLevelsOpen(false)} aria-label="Закрыть">✕</button>
+              </div>
+              <div className="levels-drawer-controls">
+                <input
+                  type="text"
+                  placeholder="Фильтр..."
+                  value={levelFilter}
+                  onChange={e => setLevelFilter(e.target.value)}
+                  aria-label="Фильтр уровней"
+                />
+              </div>
+              <div className="levels-drawer-content">
+                <div className="level-grid">
+                  {Array.from({ length: LEVELS.length }).map((_, i) => {
+                    const label = String(i + 1);
+                    if (levelFilter && !label.includes(levelFilter.trim())) return null;
+                    return (
+                      <button
+                        key={i}
+                        className={`level-btn ${i === levelIndex ? 'active' : ''}`}
+                        onClick={() => onSelectLevel(i)}
+                        aria-pressed={i === levelIndex}
+                        title={`Уровень ${i + 1}`}
+                      >
+                        {i + 1}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <div className="mobile-controls">
+              <div className="dpad">
+                <button className="dpad-btn up" aria-label="Вверх" onClick={() => setDirectionImmediate('up')}>▲</button>
+                <button className="dpad-btn left" aria-label="Влево" onClick={() => setDirectionImmediate('left')}>◀</button>
+                <div className="dpad-center" />
+                <button className="dpad-btn right" aria-label="Вправо" onClick={() => setDirectionImmediate('right')}>▶</button>
+                <button className="dpad-btn down" aria-label="Вниз" onClick={() => setDirectionImmediate('down')}>▼</button>
+              </div>
+              <button className="restart-btn" onClick={onRestart}>Restart</button>
+            </div>
+          </>
+        )}
       </div>
       <div style={{ fontSize: '0.85rem', color: '#666' }}>Управление: стрелки/WASD или свайп/перетаскивание головы.</div>
     </div>
