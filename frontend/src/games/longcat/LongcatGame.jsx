@@ -440,7 +440,7 @@ export default function LongcatGame() {
     if (d1 === 'up' && d2 === 'left') return assets.body_turn_ul;    // верхний правый
     if (d1 === 'up' && d2 === 'right') return assets.body_turn_dr;   // верхний левый
     if (d1 === 'down' && d2 === 'left') return assets.body_turn_ur;  // нижний правый
-    if (d1 === 'down' && d2 === 'right') return assets.body_turn_dr; // верхний левый
+    if (d1 === 'down' && d2 === 'right') return assets.body_turn_dl; // верхний левый
     return assets.body_horizontal;
   }
 
