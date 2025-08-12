@@ -426,12 +426,21 @@ export default function LongcatGame() {
     const d1 = dirBetween(prev, cur);
     const d2 = dirBetween(cur, next);
     if (!d1 || !d2) return assets.body_horizontal;
-    if ((d1 === 'left' && d2 === 'right') || (d1 === 'right' && d2 === 'left')) return assets.body_horizontal;
-    if ((d1 === 'up' && d2 === 'down') || (d1 === 'down' && d2 === 'up')) return assets.body_vertical;
-    if ((d1 === 'up' && d2 === 'right') || (d1 === 'right' && d2 === 'up')) return assets.body_turn_ur;
-    if ((d1 === 'up' && d2 === 'left') || (d1 === 'left' && d2 === 'up')) return assets.body_turn_ul;
-    if ((d1 === 'down' && d2 === 'right') || (d1 === 'right' && d2 === 'down')) return assets.body_turn_dr;
-    if ((d1 === 'down' && d2 === 'left') || (d1 === 'left' && d2 === 'down')) return assets.body_turn_dl;
+    // Прямой участок: одинаковое направление
+    if (d1 === d2) {
+      if (d1 === 'left' || d1 === 'right') return assets.body_horizontal;
+      if (d1 === 'up' || d1 === 'down') return assets.body_vertical;
+    }
+    // Повороты: важен порядок d1 -> d2 (калибровано по кейсам)
+    if (d1 === 'right' && d2 === 'up') return assets.body_turn_ur;   // нижний правый
+    if (d1 === 'right' && d2 === 'down') return assets.body_turn_ul; // верхний правый
+    if (d1 === 'left' && d2 === 'up') return assets.body_turn_dl;    // нижний левый
+    if (d1 === 'left' && d2 === 'down') return assets.body_turn_dr;  // верхний левый
+
+    if (d1 === 'up' && d2 === 'left') return assets.body_turn_ul;    // верхний правый
+    if (d1 === 'up' && d2 === 'right') return assets.body_turn_dr;   // верхний левый
+    if (d1 === 'down' && d2 === 'left') return assets.body_turn_ur;  // нижний правый
+    if (d1 === 'down' && d2 === 'right') return assets.body_turn_dr; // верхний левый
     return assets.body_horizontal;
   }
 
