@@ -3,20 +3,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { LEVELS } from './levels';
 import './longcat.css';
 // Sprite assets (SVG URLs)
-import head_up from './assets/head_up.svg';
-import head_down from './assets/head_down.svg';
-import head_left from './assets/head_left.svg';
-import head_right from './assets/head_right.svg';
-import body_horizontal from './assets/body_horizontal.svg';
-import body_vertical from './assets/body_vertical.svg';
-import body_turn_ur from './assets/body_turn_ur.svg';
-import body_turn_ul from './assets/body_turn_ul.svg';
-import body_turn_dr from './assets/body_turn_dr.svg';
-import body_turn_dl from './assets/body_turn_dl.svg';
-import tail_up from './assets/tail_up.svg';
-import tail_down from './assets/tail_down.svg';
-import tail_left from './assets/tail_left.svg';
-import tail_right from './assets/tail_right.svg';
+// Sprites served from public folder to avoid bundling path issues in production
 
 // Направления движения
 const DIRS = {
@@ -383,12 +370,22 @@ export default function LongcatGame() {
     setLevelsOpen(false);
   };
 
-  // --- Sprite assets mapping (using SVG files) ---
+  // --- Sprite assets mapping (served from public /longcat) ---
   const assets = {
-    head_up, head_down, head_left, head_right,
-    body_horizontal, body_vertical,
-    body_turn_ur, body_turn_ul, body_turn_dr, body_turn_dl,
-    tail_up, tail_down, tail_left, tail_right,
+    head_up: '/longcat/head_up.svg',
+    head_down: '/longcat/head_down.svg',
+    head_left: '/longcat/head_left.svg',
+    head_right: '/longcat/head_right.svg',
+    body_horizontal: '/longcat/body_horizontal.svg',
+    body_vertical: '/longcat/body_vertical.svg',
+    body_turn_ur: '/longcat/body_turn_ur.svg',
+    body_turn_ul: '/longcat/body_turn_ul.svg',
+    body_turn_dr: '/longcat/body_turn_dr.svg',
+    body_turn_dl: '/longcat/body_turn_dl.svg',
+    tail_up: '/longcat/tail_up.svg',
+    tail_down: '/longcat/tail_down.svg',
+    tail_left: '/longcat/tail_left.svg',
+    tail_right: '/longcat/tail_right.svg',
   };
 
   function dirBetween(a, b) {
