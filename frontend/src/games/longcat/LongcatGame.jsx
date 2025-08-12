@@ -470,9 +470,7 @@ export default function LongcatGame() {
   <div className="longcat-controls">
     <button onClick={onRestart}>Restart</button>
     {isMobile ? (
-      <button onClick={() => setLevelsOpen(true)} aria-expanded={levelsOpen} aria-controls="levels-drawer">
-        Уровни ({levelIndex + 1}/{LEVELS.length})
-      </button>
+      <button onClick={() => setLevelsOpen(true)} aria-expanded={levelsOpen} aria-controls="levels-drawer">{'\u0423\u0440\u043E\u0432\u043D\u0438 '}({levelIndex + 1}/{LEVELS.length})</button>
     ) : (
       <button onClick={onNextLevel} disabled={status !== STATUS.complete}>Next Level</button>
     )}
@@ -524,14 +522,14 @@ export default function LongcatGame() {
                   bg = bodySpriteByNeighbors(prev, cur, next);
                 }
 
-                return <div key={k} className="cell sprite" style={{ backgroundImage: `url(${bg})` }} />;
+                let rot = 0;\n                // compute rotation based on segment type\n                if (idx === snake.length - 1) {\n                  rot = angleForDir(dirRef.current);\n                } else if (idx === 0 && snake.length > 1) {\n                  const prev = snake[1];\n                  const tail = snake[0];\n                  const d = dirBetween(tail, prev);\n                  rot = angleForDir(d);\n                } else if (idx > 0 && idx < snake.length - 1) {\n                  const prev = snake[idx - 1];\n                  const cur  = snake[idx];\n                  const next = snake[idx + 1];\n                  const d1 = dirBetween(prev, cur);\n                  const d2 = dirBetween(cur, next);\n                  const straight = ((d1 === "left" && d2 === "right") || (d1 === "right" && d2 === "left") || (d1 === "up" && d2 === "down") || (d1 === "down" && d2 === "up"));\n                  if (straight) {\n                    rot = (d1 === "up" || d1 === "down") ? 90 : 0;\n                  } else {\n                    const set = new Set([d1, d2]);\n                    if (set.has("up") && set.has("right")) rot = 0;\n                    else if (set.has("right") && set.has("down")) rot = 90;\n                    else if (set.has("down") && set.has("left")) rot = 180;\n                    else if (set.has("left") && set.has("up")) rot = 270;\n                  }\n                }\n                return <div key={k} className="cell sprite" style={{ backgroundImage: `url(${bg})`, transform: `rotate(${rot}deg)` }} />;
               })
             ))}
           </div>
         </div>
 
         <aside className="longcat-level-panel">
-          <div className="panel-title">����� ������</div>
+          <div className="panel-title">{'\u0412\u044B\u0431\u043E\u0440 \u0443\u0440\u043E\u0432\u043D\u044F'}</div>
           <div className="level-grid">
             {Array.from({ length: LEVELS.length }).map((_, i) => (
               <button
@@ -560,8 +558,8 @@ export default function LongcatGame() {
               onKeyDown={onDrawerKeyDown}
             >
               <div className="levels-drawer-header">
-                <h3 id="levels-drawer-title" tabIndex={-1} ref={drawerTitleRef}>Выбор уровня</h3>
-                <button className="close-btn" onClick={() => setLevelsOpen(false)} aria-label="Закрыть">✕</button>
+                <h3 id="levels-drawer-title" tabIndex={-1} ref={drawerTitleRef}>{'\u0412\u044B\u0431\u043E\u0440 \u0443\u0440\u043E\u0432\u043D\u044F'}</h3>
+                <button className="close-btn" onClick={() => setLevelsOpen(false)} aria-label="Фильтр уровней">✕</button>
               </div>
               <div className="levels-drawer-controls">
                 <input
@@ -601,3 +599,13 @@ export default function LongcatGame() {
     </div>
   );
 }
+
+  function angleForDir(d) {
+    switch (d) {
+      case 'right': return 0;
+      case 'down': return 90;
+      case 'left': return 180;
+      case 'up': return 270;
+      default: return 0;
+    }
+  }

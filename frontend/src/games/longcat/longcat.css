@@ -1,4 +1,4 @@
-/* Стили Longcat (Snake-лабиринт) */
+﻿/* Стили Longcat (Snake-лабиринт) */
 .longcat-wrap { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
 .longcat-header { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; align-items: center; }
 .longcat-status { display: none; }
@@ -60,7 +60,7 @@
 .cell.head  { background: #d68150; box-shadow: 0 0 0 2px #5a3c2a inset, 0 0 0 2px #fff5e6; }
 
 /* Sprite rendering for pixel-art snake */
-.cell.sprite {
+.cell.sprite { transform-origin: center; 
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
