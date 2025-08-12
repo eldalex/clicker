@@ -315,7 +315,7 @@ export default function LongcatGame() {
     const el = boardRef.current;
     if (!el) return null;
     const rect = el.getBoundingClientRect();
-    const GAP = 2; // как в CSS
+    const GAP = 0; // как в CSS (без зазоров для цельного тела)
     const totalW = rect.width;
     const totalH = rect.height;
     const cellW = (totalW - GAP * (gridWidth - 1)) / gridWidth;
