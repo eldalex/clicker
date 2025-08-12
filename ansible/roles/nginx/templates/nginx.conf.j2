@@ -3,7 +3,7 @@ server {
     listen 80;
     server_name {{ domain }};
 
-    root {{ deploy_path }}/build;
+    root {{ deploy_build_dir }};
     index index.html;
 
     # Основной блок: отдаём файлы React
@@ -25,7 +25,7 @@ server {
 
     # лока для certbot
     location ^~ /.well-known/acme-challenge/ {
-        alias /var/www/click/build/.well-known/acme-challenge/;
+        alias {{ deploy_build_dir }}/.well-known/acme-challenge/;
         try_files $uri =404;
     }
 

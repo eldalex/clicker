@@ -65,19 +65,12 @@
   args:
     chdir: "{{ frontend_dir }}"
 
-- name: Создать папку для отдачи собранного фронтенда
+  # Билд уже попадает в {{ backend_dir }}/build, отдельное копирование не требуется
+  # Права на директорию обеспечим на всякий случай
+- name: Ensure build directory perms
   file:
     path: "{{ deploy_build_dir }}"
     state: directory
-    owner: www-data
-    group: www-data
-    mode: '0755'
-
-- name: Копировать фронтенд в папку для Nginx
-  copy:
-    remote_src: yes
-    src: "{{ frontend_build_dir }}/"
-    dest: "{{ deploy_build_dir }}/"
     owner: www-data
     group: www-data
     mode: '0755'

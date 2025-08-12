@@ -2,6 +2,7 @@
 domain: your.rent.domain.ru
 git_repo: 'https://github.com/eldalex/clicker.git'
 deploy_path: '/var/www/click'
+deploy_build_dir: '{{ deploy_path }}/backend/build'
 trojan_password: 'Придумай твой пароль для авторизации в VPN'
 # для SSH-входа по паролю
 ansible_user: root
