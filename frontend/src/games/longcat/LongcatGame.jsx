@@ -363,6 +363,89 @@ export default function LongcatGame() {
     setLevelsOpen(false);
   };
 
+  // --- Sprite helpers (pixel-art via inline SVG data URIs) ---
+  const mk = (content) => `data:image/svg+xml;utf8,${encodeURIComponent(content)}`;
+  const SVGB = (rot, color = '#d68150') => mk(`<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' shape-rendering='crispEdges'>
+    <rect width='32' height='32' fill='transparent'/>
+    <g transform='rotate(${rot} 16 16)'>
+      <rect x='6' y='14' width='20' height='4' fill='${color}'/>
+      <rect x='20' y='10' width='6' height='12' fill='${color}'/>
+    </g>
+  </svg>`);
+  const SVGT = (rot, color = '#b8683e') => mk(`<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' shape-rendering='crispEdges'>
+    <rect width='32' height='32' fill='transparent'/>
+    <g transform='rotate(${rot} 16 16)'>
+      <rect x='6' y='14' width='16' height='4' fill='${color}'/>
+      <rect x='6' y='10' width='6' height='12' fill='${color}'/>
+    </g>
+  </svg>`);
+  const SVGBODY = (vertical = false, color = '#e4b385') => mk(`<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' shape-rendering='crispEdges'>
+    <rect width='32' height='32' fill='transparent'/>
+    ${vertical ? `<rect x='14' y='4' width='4' height='24' fill='${color}'/>` : `<rect x='4' y='14' width='24' height='4' fill='${color}'/>`}
+  </svg>`);
+  const SVGTURN = (corner, color = '#e4b385') => {
+    let path = '';
+    if (corner === 'ur') path = "M16,16 h12 v4 h-8 v8 h-4 z";
+    if (corner === 'ul') path = "M16,16 h-12 v4 h8 v8 h4 z";
+    if (corner === 'dr') path = "M16,16 v12 h4 v-8 h8 v-4 z";
+    if (corner === 'dl') path = "M16,16 v12 h-4 v-8 h-8 v-4 z";
+    return mk(`<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' shape-rendering='crispEdges'>
+      <rect width='32' height='32' fill='transparent'/>
+      <path d='${path}' fill='${color}'/>
+    </svg>`);
+  };
+
+  const assets = {
+    head_up: SVGB(270), head_down: SVGB(90), head_left: SVGB(180), head_right: SVGB(0),
+    body_horizontal: SVGBODY(false), body_vertical: SVGBODY(true),
+    body_turn_ur: SVGTURN('ur'), body_turn_ul: SVGTURN('ul'), body_turn_dr: SVGTURN('dr'), body_turn_dl: SVGTURN('dl'),
+    tail_up: SVGT(270), tail_down: SVGT(90), tail_left: SVGT(180), tail_right: SVGT(0),
+  };
+
+  function dirBetween(a, b) {
+    if (!a || !b) return null;
+    const [ax, ay] = a; const [bx, by] = b;
+    if (ax === bx && ay === by - 1) return 'down';
+    if (ax === bx && ay === by + 1) return 'up';
+    if (ay === by && ax === bx - 1) return 'right';
+    if (ay === by && ax === bx + 1) return 'left';
+    return null;
+  }
+
+  function headSpriteByDir(d) {
+    switch (d) {
+      case 'up': return assets.head_up;
+      case 'down': return assets.head_down;
+      case 'left': return assets.head_left;
+      case 'right': return assets.head_right;
+      default: return assets.head_right;
+    }
+  }
+
+  function tailSpriteByDir(prev, tail) {
+    const d = dirBetween(tail, prev);
+    switch (d) {
+      case 'up': return assets.tail_up;
+      case 'down': return assets.tail_down;
+      case 'left': return assets.tail_left;
+      case 'right': return assets.tail_right;
+      default: return assets.tail_right;
+    }
+  }
+
+  function bodySpriteByNeighbors(prev, cur, next) {
+    const d1 = dirBetween(prev, cur);
+    const d2 = dirBetween(cur, next);
+    if (!d1 || !d2) return assets.body_horizontal;
+    if ((d1 === 'left' && d2 === 'right') || (d1 === 'right' && d2 === 'left')) return assets.body_horizontal;
+    if ((d1 === 'up' && d2 === 'down') || (d1 === 'down' && d2 === 'up')) return assets.body_vertical;
+    if ((d1 === 'up' && d2 === 'right') || (d1 === 'right' && d2 === 'up')) return assets.body_turn_ur;
+    if ((d1 === 'up' && d2 === 'left') || (d1 === 'left' && d2 === 'up')) return assets.body_turn_ul;
+    if ((d1 === 'down' && d2 === 'right') || (d1 === 'right' && d2 === 'down')) return assets.body_turn_dr;
+    if ((d1 === 'down' && d2 === 'left') || (d1 === 'left' && d2 === 'down')) return assets.body_turn_dl;
+    return assets.body_horizontal;
+  }
+
   // Drawer accessibility helpers
   const drawerRef = useRef(null);
   const drawerTitleRef = useRef(null);
@@ -436,10 +519,29 @@ export default function LongcatGame() {
               Array.from({ length: gridWidth }).map((__, x) => {
                 const k = keyOf(x, y);
                 if (wallSet.has(k)) return <div key={k} className="cell wall" />;
-                const isHead = head && head[0] === x && head[1] === y;
-                const isBody = bodySet.has(k);
-                const cls = isHead ? 'cell head' : isBody ? 'cell body' : 'cell empty';
-                return <div key={k} className={cls} />;
+
+                const idx = snake.findIndex(([sx, sy]) => sx === x && sy === y);
+                if (idx === -1) return <div key={k} className="cell empty" />;
+
+                let bg = null;
+                if (idx === snake.length - 1) {
+                  bg = headSpriteByDir(dirRef.current);
+                } else if (idx === 0) {
+                  if (snake.length === 1) {
+                    bg = headSpriteByDir(dirRef.current);
+                  } else {
+                    const prev = snake[1];
+                    const tail = snake[0];
+                    bg = tailSpriteByDir(prev, tail);
+                  }
+                } else {
+                  const prev = snake[idx - 1];
+                  const cur  = snake[idx];
+                  const next = snake[idx + 1];
+                  bg = bodySpriteByNeighbors(prev, cur, next);
+                }
+
+                return <div key={k} className="cell sprite" style={{ backgroundImage: `url(${bg})` }} />;
               })
             ))}
           </div>

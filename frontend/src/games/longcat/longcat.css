@@ -59,6 +59,14 @@
 .cell.body  { background: #e4b385; box-shadow: inset 0 0 0 2px #ffffff66; }
 .cell.head  { background: #d68150; box-shadow: 0 0 0 2px #5a3c2a inset, 0 0 0 2px #fff5e6; }
 
+/* Sprite rendering for pixel-art snake */
+.cell.sprite {
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  image-rendering: pixelated;
+}
+
 .longcat-controls button { padding: 0.5rem 0.75rem; }
 
 /* Оверлеи статуса */
