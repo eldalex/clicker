@@ -1,4 +1,4 @@
-// Longcat (Snake-лабиринт): заполняем все свободные клетки, не врезаемся
+﻿// Longcat (Snake-лабиринт): заполняем все свободные клетки, не врезаемся
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { LEVELS } from './levels';
 import './longcat.css';
@@ -371,6 +371,11 @@ export default function LongcatGame() {
 
   // Рендер сетки
   const bodySet = useMemo(() => new Set(snake.slice(0, -1).map(([x,y]) => keyOf(x,y))), [snake]);
+  const snakeIndexMap = useMemo(() => {
+    const m = new Map();
+    snake.forEach(([sx, sy], i) => m.set(keyOf(sx, sy), i));
+    return m;
+  }, [snake]);
   const head = snake[snake.length - 1];
 
   const onSelectLevel = (idx) => {
@@ -462,19 +467,18 @@ export default function LongcatGame() {
     <div className="longcat-wrap">
       <h2>Longcat</h2>
       <div className="longcat-header">
-        
-        <div className="longcat-controls">
-          <button onClick={onRestart}>Restart</button>
-          {isMobile ? (
-            <button onClick={() => setLevelsOpen(true)} aria-expanded={levelsOpen} aria-controls="levels-drawer">
-              Уровни ({levelIndex + 1}/{LEVELS.length})
-            </button>
-          ) : (
-            <button onClick={onNextLevel} disabled={status !== STATUS.complete}>Next Level</button>
-          )}
-        </div>
-      </div>
-      <div className="longcat-main">
+  <div className="longcat-controls">
+    <button onClick={onRestart}>Restart</button>
+    {isMobile ? (
+      <button onClick={() => setLevelsOpen(true)} aria-expanded={levelsOpen} aria-controls="levels-drawer">
+        Уровни ({levelIndex + 1}/{LEVELS.length})
+      </button>
+    ) : (
+      <button onClick={onNextLevel} disabled={status !== STATUS.complete}>Next Level</button>
+    )}
+  </div>
+</div>
+<div className="longcat-main">
         <div className="longcat-board-frame"
              onMouseDown={onPointerDown}
              onMouseMove={onPointerMove}
@@ -527,7 +531,7 @@ export default function LongcatGame() {
         </div>
 
         <aside className="longcat-level-panel">
-          <div className="panel-title">Уровни</div>
+          <div className="panel-title">����� ������</div>
           <div className="level-grid">
             {Array.from({ length: LEVELS.length }).map((_, i) => (
               <button
