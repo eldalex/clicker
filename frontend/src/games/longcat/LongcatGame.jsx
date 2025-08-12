@@ -342,6 +342,10 @@ export default function LongcatGame() {
   const bodySet = useMemo(() => new Set(snake.slice(0, -1).map(([x,y]) => keyOf(x,y))), [snake]);
   const head = snake[snake.length - 1];
 
+  const onSelectLevel = (idx) => {
+    setLevelIndex(idx % LEVELS.length);
+  };
+
   return (
     <div className="longcat-wrap">
       <h2>Longcat</h2>
@@ -357,37 +361,55 @@ export default function LongcatGame() {
           <button onClick={onNextLevel} disabled={status !== STATUS.complete}>Next Level</button>
         </div>
       </div>
-
-      <div className="longcat-board-frame"
-           onMouseDown={onPointerDown}
-           onMouseMove={onPointerMove}
-           onMouseUp={onPointerUp}
-           onMouseLeave={onPointerCancel}
-           onTouchStart={onPointerDown}
-           onTouchMove={onPointerMove}
-           onTouchEnd={onPointerUp}
-           onTouchCancel={onPointerCancel}
-      >
-        <div className="longcat-overlay">
-          {status === STATUS.complete && <div className="badge win">Уровень пройден!</div>}
-          {status === STATUS.over && <div className="badge lose">Game Over</div>}
-        </div>
-        <div
-          className="longcat-board"
-          style={{ gridTemplateColumns: `repeat(${gridWidth}, var(--cell-size))`, gridTemplateRows: `repeat(${gridHeight}, var(--cell-size))` }}
-          ref={boardRef}
+      <div className="longcat-main">
+        <div className="longcat-board-frame"
+             onMouseDown={onPointerDown}
+             onMouseMove={onPointerMove}
+             onMouseUp={onPointerUp}
+             onMouseLeave={onPointerCancel}
+             onTouchStart={onPointerDown}
+             onTouchMove={onPointerMove}
+             onTouchEnd={onPointerUp}
+             onTouchCancel={onPointerCancel}
         >
-          {Array.from({ length: gridHeight }).map((_, y) => (
-            Array.from({ length: gridWidth }).map((__, x) => {
-              const k = keyOf(x, y);
-              if (wallSet.has(k)) return <div key={k} className="cell wall" />;
-              const isHead = head && head[0] === x && head[1] === y;
-              const isBody = bodySet.has(k);
-              const cls = isHead ? 'cell head' : isBody ? 'cell body' : 'cell empty';
-              return <div key={k} className={cls} />;
-            })
-          ))}
+          <div className="longcat-overlay">
+            {status === STATUS.complete && <div className="badge win">Уровень пройден!</div>}
+            {status === STATUS.over && <div className="badge lose">Game Over</div>}
+          </div>
+          <div
+            className="longcat-board"
+            style={{ gridTemplateColumns: `repeat(${gridWidth}, var(--cell-size))`, gridTemplateRows: `repeat(${gridHeight}, var(--cell-size))` }}
+            ref={boardRef}
+          >
+            {Array.from({ length: gridHeight }).map((_, y) => (
+              Array.from({ length: gridWidth }).map((__, x) => {
+                const k = keyOf(x, y);
+                if (wallSet.has(k)) return <div key={k} className="cell wall" />;
+                const isHead = head && head[0] === x && head[1] === y;
+                const isBody = bodySet.has(k);
+                const cls = isHead ? 'cell head' : isBody ? 'cell body' : 'cell empty';
+                return <div key={k} className={cls} />;
+              })
+            ))}
+          </div>
         </div>
+
+        <aside className="longcat-level-panel">
+          <div className="panel-title">Уровни</div>
+          <div className="level-grid">
+            {Array.from({ length: LEVELS.length }).map((_, i) => (
+              <button
+                key={i}
+                className={`level-btn ${i === levelIndex ? 'active' : ''}`}
+                onClick={() => onSelectLevel(i)}
+                aria-pressed={i === levelIndex}
+                title={`Уровень ${i + 1}`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+        </aside>
       </div>
       <div style={{ fontSize: '0.85rem', color: '#666' }}>Управление: стрелки/WASD или свайп/перетаскивание головы.</div>
     </div>

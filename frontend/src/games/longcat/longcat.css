@@ -1,7 +1,41 @@
 /* Стили Longcat (Snake-лабиринт) */
-.longcat-wrap { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+.longcat-wrap { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
 .longcat-header { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; align-items: center; }
 .longcat-status { display: flex; gap: 1rem; font-size: 0.95rem; }
+
+/* Основная зона: поле + панель уровней справа */
+.longcat-main { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; justify-content: center; }
+
+.longcat-level-panel {
+  width: clamp(180px, 24vw, 240px);
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08), inset 0 0 0 1px #ead8c6;
+  padding: 10px;
+}
+.panel-title { font-weight: 600; color: #6b5b53; margin-bottom: 8px; }
+.level-grid {
+  --btn-size: 40px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--btn-size), 1fr));
+  gap: 8px;
+}
+.level-btn {
+  height: var(--btn-size);
+  min-width: var(--btn-size);
+  border-radius: 10px;
+  border: 1px solid #e2ceb6;
+  background: #fff8f0;
+  color: #5a3c2a;
+  font-weight: 600;
+  cursor: pointer;
+}
+.level-btn:hover { background: #ffe9d3; }
+.level-btn.active {
+  background: #d68150;
+  color: #fff;
+  border-color: #b8683e;
+}
 
 .longcat-board-frame {
   background: #f7efe3;
