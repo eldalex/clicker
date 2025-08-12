@@ -508,16 +508,7 @@ export default function LongcatGame() {
               </div>
             </div>
 
-            <div className="mobile-controls">
-              <div className="dpad">
-                <button className="dpad-btn up" aria-label="Вверх" onClick={() => setDirectionImmediate('up')}>▲</button>
-                <button className="dpad-btn left" aria-label="Влево" onClick={() => setDirectionImmediate('left')}>◀</button>
-                <div className="dpad-center" />
-                <button className="dpad-btn right" aria-label="Вправо" onClick={() => setDirectionImmediate('right')}>▶</button>
-                <button className="dpad-btn down" aria-label="Вниз" onClick={() => setDirectionImmediate('down')}>▼</button>
-              </div>
-              <button className="restart-btn" onClick={onRestart}>Restart</button>
-            </div>
+            
           </>
         )}
       </div>

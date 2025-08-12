@@ -122,25 +122,4 @@
 .levels-drawer-content { padding: 12px 14px; overflow-y: auto; flex: 1; }
 .close-btn { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 6px 10px; cursor: pointer; }
 
-/* Mobile floating controls (D-pad + restart) */
-.mobile-controls {
-  position: fixed; left: 50%; transform: translateX(-50%);
-  bottom: 12px; z-index: 40;
-  background: rgba(255,255,255,0.8);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(0,0,0,0.08);
-  border-radius: 14px; padding: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-}
-.dpad { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); gap: 8px; align-items: center; justify-items: center; }
-.dpad-center { width: 56px; height: 56px; }
-.dpad-btn { width: 56px; height: 56px; border-radius: 12px; border: 1px solid #d8c7b5; background: #fff8f0; font-size: 22px; line-height: 1; cursor: pointer; }
-.dpad-btn:hover { background: #ffe9d3; }
-.dpad .up { grid-column: 2; grid-row: 1; }
-.dpad .left { grid-column: 1; grid-row: 2; }
-.dpad .right { grid-column: 3; grid-row: 2; }
-.dpad .down { grid-column: 2; grid-row: 3; }
-.restart-btn { width: 100%; margin-top: 8px; padding: 10px; border-radius: 10px; border: 1px solid #d8c7b5; background: #fff; font-weight: 600; }
-
-@media (min-width: 768px) {
-  .mobile-controls { display: none; }
-}
+/* (mobile D-pad removed) */
