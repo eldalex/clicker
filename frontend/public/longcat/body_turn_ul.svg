@@ -25,7 +25,7 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="36.46875"
      inkscape:cx="16"
-     inkscape:cy="22.580977"
+     inkscape:cy="13.806341"
      inkscape:window-width="2560"
      inkscape:window-height="1369"
      inkscape:window-x="-8"
@@ -60,18 +60,4 @@
      height="6"
      fill="#f0c38b"
      id="rect4" />
-  <rect
-     x="0"
-     y="0"
-     width="32"
-     height="2"
-     fill="#5a3c2a"
-     id="rect5" />
-  <rect
-     x="29.998285"
-     y="0"
-     width="2"
-     height="32"
-     fill="#5a3c2a"
-     id="rect6" />
 </svg>
