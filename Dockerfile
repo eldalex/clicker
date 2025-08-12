@@ -17,7 +17,7 @@ RUN npm install
 # Копируем исходники бэкенда
 COPY backend/. .
 # Копируем собранный фронтенд из предыдущего этапа
-COPY --from=build-frontend /app/frontend/dist ./build
+COPY --from=build-frontend /app/backend/build ./build
 COPY frontend/public ./public
 
 # Указываем порт
