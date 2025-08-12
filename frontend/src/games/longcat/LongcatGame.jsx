@@ -478,12 +478,7 @@ export default function LongcatGame() {
     <div className="longcat-wrap">
       <h2>Longcat</h2>
       <div className="longcat-header">
-        <div className="longcat-status">
-          <span>Статус: {status}</span>
-          <span>Тики: {ticks}</span>
-          <span>Заполнено: {Math.floor((filledCount / totalFreeCells) * 100)}%</span>
-          <span>Уровень: {levelIndex + 1}/{LEVELS.length}</span>
-        </div>
+        
         <div className="longcat-controls">
           <button onClick={onRestart}>Restart</button>
           {isMobile ? (
