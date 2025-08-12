@@ -2,6 +2,21 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { LEVELS } from './levels';
 import './longcat.css';
+// Sprite assets (SVG URLs)
+import head_up from './assets/head_up.svg';
+import head_down from './assets/head_down.svg';
+import head_left from './assets/head_left.svg';
+import head_right from './assets/head_right.svg';
+import body_horizontal from './assets/body_horizontal.svg';
+import body_vertical from './assets/body_vertical.svg';
+import body_turn_ur from './assets/body_turn_ur.svg';
+import body_turn_ul from './assets/body_turn_ul.svg';
+import body_turn_dr from './assets/body_turn_dr.svg';
+import body_turn_dl from './assets/body_turn_dl.svg';
+import tail_up from './assets/tail_up.svg';
+import tail_down from './assets/tail_down.svg';
+import tail_left from './assets/tail_left.svg';
+import tail_right from './assets/tail_right.svg';
 
 // Направления движения
 const DIRS = {
@@ -363,43 +378,12 @@ export default function LongcatGame() {
     setLevelsOpen(false);
   };
 
-  // --- Sprite helpers (pixel-art via inline SVG data URIs) ---
-  const mk = (content) => `data:image/svg+xml;utf8,${encodeURIComponent(content)}`;
-  const SVGB = (rot, color = '#d68150') => mk(`<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' shape-rendering='crispEdges'>
-    <rect width='32' height='32' fill='transparent'/>
-    <g transform='rotate(${rot} 16 16)'>
-      <rect x='6' y='14' width='20' height='4' fill='${color}'/>
-      <rect x='20' y='10' width='6' height='12' fill='${color}'/>
-    </g>
-  </svg>`);
-  const SVGT = (rot, color = '#b8683e') => mk(`<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' shape-rendering='crispEdges'>
-    <rect width='32' height='32' fill='transparent'/>
-    <g transform='rotate(${rot} 16 16)'>
-      <rect x='6' y='14' width='16' height='4' fill='${color}'/>
-      <rect x='6' y='10' width='6' height='12' fill='${color}'/>
-    </g>
-  </svg>`);
-  const SVGBODY = (vertical = false, color = '#e4b385') => mk(`<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' shape-rendering='crispEdges'>
-    <rect width='32' height='32' fill='transparent'/>
-    ${vertical ? `<rect x='14' y='4' width='4' height='24' fill='${color}'/>` : `<rect x='4' y='14' width='24' height='4' fill='${color}'/>`}
-  </svg>`);
-  const SVGTURN = (corner, color = '#e4b385') => {
-    let path = '';
-    if (corner === 'ur') path = "M16,16 h12 v4 h-8 v8 h-4 z";
-    if (corner === 'ul') path = "M16,16 h-12 v4 h8 v8 h4 z";
-    if (corner === 'dr') path = "M16,16 v12 h4 v-8 h8 v-4 z";
-    if (corner === 'dl') path = "M16,16 v12 h-4 v-8 h-8 v-4 z";
-    return mk(`<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' shape-rendering='crispEdges'>
-      <rect width='32' height='32' fill='transparent'/>
-      <path d='${path}' fill='${color}'/>
-    </svg>`);
-  };
-
+  // --- Sprite assets mapping (using SVG files) ---
   const assets = {
-    head_up: SVGB(270), head_down: SVGB(90), head_left: SVGB(180), head_right: SVGB(0),
-    body_horizontal: SVGBODY(false), body_vertical: SVGBODY(true),
-    body_turn_ur: SVGTURN('ur'), body_turn_ul: SVGTURN('ul'), body_turn_dr: SVGTURN('dr'), body_turn_dl: SVGTURN('dl'),
-    tail_up: SVGT(270), tail_down: SVGT(90), tail_left: SVGT(180), tail_right: SVGT(0),
+    head_up, head_down, head_left, head_right,
+    body_horizontal, body_vertical,
+    body_turn_ur, body_turn_ul, body_turn_dr, body_turn_dl,
+    tail_up, tail_down, tail_left, tail_right,
   };
 
   function dirBetween(a, b) {
