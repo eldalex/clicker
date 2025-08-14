@@ -12,11 +12,11 @@ const catImages = [
 ];
 
 const achievementsList = [
-  { id: 'click_1', text: '������ ���!', condition: stats => stats.score >= 1 },
-  { id: 'click_100', text: '100 ���!', condition: stats => stats.score >= 100 },
-  { id: 'click_200', text: '200 ���!', condition: stats => stats.score >= 200 },
-  { id: 'cps_5', text: '5 ������/���', condition: stats => stats.maxCPS >= 5 },
-  { id: 'cps_10', text: '10 ������/���', condition: stats => stats.maxCPS >= 10 }
+  { id: "click_1", text: "Первый клик!", condition: stats => stats.score >= 1 },
+  { id: "click_100", text: "100 очков!", condition: stats => stats.score >= 100 },
+  { id: "click_200", text: "200 очков!", condition: stats => stats.score >= 200 },
+  { id: "cps_5", text: "5 кликов/сек", condition: stats => stats.maxCPS >= 5 },
+  { id: "cps_10", text: "10 кликов/сек", condition: stats => stats.maxCPS >= 10 }
 ];
 
 const playSound = (src) => {
@@ -263,7 +263,7 @@ function App() {
           setRageEffect(true);
           addPoints(100);
           playSound('/fanfare.mp3');
-          setBoomText('?? ������!');
+          setBoomText('Дикость!');
 
           let i = 0;
           const interval = setInterval(() => {
@@ -349,9 +349,9 @@ function App() {
             ���: <input value={name} onChange={e => setName(e.target.value)} />
           </div>
           <div className="game-choices">
-            <button className="game-card" onClick={() => setSelectedGame('clicker')}>?? ������</button>
-            <button className="game-card" onClick={() => setSelectedGame('match3')}>?? ��� � ���</button>
-            <button className="game-card" onClick={() => setSelectedGame('longcat')}>?? Longcat</button>
+            <button className="game-card" onClick={() => setSelectedGame('clicker')}>Кликер</button>
+            <button className="game-card" onClick={() => setSelectedGame('match3')}>Match3</button>
+            <button className="game-card" onClick={() => setSelectedGame('longcat')}>Longcat</button>
           </div>
         </div>
       ) : selectedGame === 'match3' ? (
@@ -374,7 +374,7 @@ function App() {
           <div style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
             <button onClick={resetToSelector}>Назад к выбору игры</button>
           </div>
-          <h1>������, {name}!</h1>
+          <h1>Добро пожаловать, {name}!</h1>
           <div
             className="target"
             style={{
@@ -409,11 +409,10 @@ function App() {
               <div className="zzz-bubble">Zzz...</div>
             )}
           </div>
-          <div>����: {score}</div>
-          <div>���� CPS: {maxCPS}</div>
+          <div>Очки: {score}</div>
+          <div>Макс CPS: {maxCPS}</div>
 
-          <div className="achievements">
-            <h3>����������</h3>
+          <div className="achievements">`n            <h3>Достижения</h3>
             <ul>
               {achievementsList.map(ach => (
                 <li key={ach.id}>{unlocked.has(ach.id) ? '?' : '??'} {ach.text}</li>
@@ -421,12 +420,9 @@ function App() {
             </ul>
           </div>
 
-          <div className="leaderboard">
-            <h3>������� �������</h3>
+          <div className="leaderboard">`n            <h3>Таблица лидеров</h3>
             <table>
-              <thead>
-                <tr><th>#</th><th>���</th><th>����</th></tr>
-              </thead>
+              <thead>`n                <tr><th>#</th><th>Имя</th><th>Очки</th></tr>`n              </thead>
               <tbody>
                 {leaderboard.map((e, i) => (
                   <tr key={i}><td>{i + 1}</td><td>{e.name}</td><td>{e.score}</td></tr>
@@ -435,14 +431,12 @@ function App() {
             </table>
           </div>
 
-          <button onClick={submitScore} disabled={score === 0}>��������� ���������</button>
+          <button onClick={submitScore} disabled={score === 0}>Отправить результат</button>
           </div>
           <div className="side-panel">
-            <div>����-�����: {coins}</div>
-            <div>������������: {autoClickers}</div>
-            <button onClick={buyClicker} disabled={coins < clickerCost}>
-              ������ ������ ({clickerCost})
-            </button>
+            <div>Монеты: {coins}</div>
+            <div>Автокликеры: {autoClickers}</div>
+            <button onClick={buyClicker} disabled={coins < clickerCost}>Купить кликер ({clickerCost})</button>
           </div>
         </div>
       )}
@@ -451,5 +445,22 @@ function App() {
 }
 
 export default App;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
