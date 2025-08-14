@@ -55,6 +55,14 @@ function App() {
   const lastClickTimeRef = useRef(Date.now());
   const activeClickDurationRef = useRef(0);
 
+  // Prefill name from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('player_name') || localStorage.getItem('playerName');
+      if (saved && typeof saved === 'string') setName(saved);
+    } catch (_) {}
+  }, []);
+
   // Save progress on change
   useEffect(() => {
     if (!started) return;
@@ -319,6 +327,22 @@ function App() {
   };
 
   const clickerCost = 100 * Math.pow(2, autoClickers);
+
+  // Require name for any selected game before showing gameplay
+  if (selectedGame && !started) {
+    return (
+      <div className="container">
+        <div className="start">
+          <h2>Имя:</h2>
+          <input value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && startGame()} />
+          <button onClick={startGame}>Начать</button>
+          <div style={{ marginTop: '0.5rem' }}>
+            <button onClick={resetToSelector}>Назад к выбору игры</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container">
