@@ -35,10 +35,6 @@ const achievementsList = [
 
 const playSound = () => {};
 
-  audio.play();
-
-};
-
 
 
 function App() {
