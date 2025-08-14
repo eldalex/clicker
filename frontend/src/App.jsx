@@ -63,6 +63,13 @@ function App() {
     } catch (_) {}
   }, []);
 
+  // Авто-старт для кликера при выборе и наличии имени
+  useEffect(() => {
+    if (selectedGame === 'clicker' && name.trim() && !started) {
+      startGame();
+    }
+  }, [selectedGame, name]);
+
   // Save progress on change
   useEffect(() => {
     if (!started) return;
@@ -77,7 +84,7 @@ function App() {
   useEffect(() => {
     fetch('/api/scores?game=' + encodeURIComponent(selectedGame || 'clicker'))
       .then(res => res.json()).then(setLeaderboard).catch(() => {});
-  }, [selectedGame]);
+  }, [selectedGame, started]);
 
   // Fetch load_token after starting (name entered) for the selected game
   useEffect(() => {
@@ -89,6 +96,9 @@ function App() {
       .then(res => res.json())
       .then(data => {
         if (data && data.load_token) setLoadToken(data.load_token);
+        if (data && typeof data.score === 'number') {
+          setScore(prev => Math.max(prev, data.score));
+        }
       })
       .catch(() => {});
   }, [started, name, selectedGame]);
@@ -333,6 +343,9 @@ function App() {
     return (
       <div className="container">
         <div className="start">
+          <div style={{ marginBottom: '0.5rem' }}>
+            Имя: <input value={name} onChange={e => setName(e.target.value)} />
+          </div>
           <h2>Имя:</h2>
           <input value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && startGame()} />
           <button onClick={startGame}>Начать</button>

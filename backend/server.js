@@ -46,7 +46,10 @@ const stmtUpsertScore = db.prepare(
   `INSERT INTO scores(user_id, game_id, score, version)
    VALUES (?, ?, ?, 0)
    ON CONFLICT(user_id, game_id)
-   DO UPDATE SET score=excluded.score, version=scores.version+1, updated_at=CURRENT_TIMESTAMP`
+   DO UPDATE SET
+     score = CASE WHEN excluded.score > scores.score THEN excluded.score ELSE scores.score END,
+     version = CASE WHEN excluded.score > scores.score THEN scores.version + 1 ELSE scores.version END,
+     updated_at = CASE WHEN excluded.score > scores.score THEN CURRENT_TIMESTAMP ELSE updated_at END`
 );
 const stmtTopScoresByGame = db.prepare(
   `SELECT u.name AS name, s.score AS score
@@ -131,4 +134,3 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`SQLite DB: ${DB_PATH}`);
 });
-
