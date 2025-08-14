@@ -5,7 +5,8 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory={{ backend_dir }}
-ExecStart=/usr/bin/pm2-runtime start server.js --name {{ service_name }} --update-env --env production
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+ExecStart=/usr/bin/env pm2-runtime start server.js --name {{ service_name }} --update-env --env production
 Restart=on-failure
 User=www-data
 Group=www-data
