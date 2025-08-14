@@ -229,3 +229,4 @@ export default function ClickerGame({ name, onBack }) {
 
 
 
+
