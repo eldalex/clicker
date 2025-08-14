@@ -151,7 +151,7 @@ export default function ClickerGame({ name, onBack }) {
         achievementsList.forEach(ach => {
           if (!updated.has(ach.id) && ach.condition({ score: newScore, maxCPS })) {
             updated.add(ach.id);
-            playSound('/clicker/fanfare.mp3');
+            playSoundNew(fanfareRef);
           }
         });
         return updated;
