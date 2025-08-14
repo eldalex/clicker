@@ -338,30 +338,16 @@ function App() {
 
   const clickerCost = 100 * Math.pow(2, autoClickers);
 
-  // Require name for any selected game before showing gameplay
-  if (selectedGame && !started) {
-    return (
-      <div className="container">
-        <div className="start">
-          <div style={{ marginBottom: '0.5rem' }}>
-            Имя: <input value={name} onChange={e => setName(e.target.value)} />
-          </div>
-          <h2>Имя:</h2>
-          <input value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && startGame()} />
-          <button onClick={startGame}>Начать</button>
-          <div style={{ marginTop: '0.5rem' }}>
-            <button onClick={resetToSelector}>Назад к выбору игры</button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Имя вводится на стартовой странице (без промежуточного экрана)
 
   return (
     <div className="container">
       {!selectedGame ? (
         <div className="start">
           <h2>Выберите игру</h2>
+          <div style={{ marginBottom: '0.5rem' }}>
+            Имя: <input value={name} onChange={e => setName(e.target.value)} />
+          </div>
           <div className="game-choices">
             <button className="game-card" onClick={() => setSelectedGame('clicker')}>🐱 Кликер</button>
             <button className="game-card" onClick={() => setSelectedGame('match3')}>🟩 Три в ряд</button>
@@ -382,7 +368,8 @@ function App() {
           </div>
           <LongcatGame />
         </div>
-      ) : !started ? (
+      ) : (
+        {false && (
         <div className="start">
           <h2>Имя:</h2>
           <input value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && startGame()} />
@@ -390,7 +377,7 @@ function App() {
           <div style={{ marginTop: '0.5rem' }}>
             <button onClick={resetToSelector}>← Назад к выбору</button>
           </div>
-        </div>
+        </div>)}
       ) : (
         <div className="game-wrapper">
         <div className="game" ref={gameRef}>
