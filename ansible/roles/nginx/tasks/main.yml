@@ -1,4 +1,4 @@
----
+﻿---
 - name: Установить Nginx
   apt:
     name: "{{ nginx_package }}"
@@ -25,3 +25,17 @@
     dest: "/etc/nginx/sites-enabled/{{ domain }}.conf"
     state: link
   notify: Reload nginx
+
+- name: Ensure ACME webroot exists
+  file:
+    path: /var/www/letsencrypt/.well-known/acme-challenge
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'
+
+- name: Validate nginx configuration
+  command: nginx -t
+  register: nginx_test
+  changed_when: false
+  failed_when: nginx_test.rc != 0
