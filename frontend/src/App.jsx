@@ -1,6 +1,7 @@
 ﻿// frontend/src/App.jsx
 import React, { useState, useRef, useEffect } from 'react';
-import Match3 from './Match3';
+import Match3 from './games/match3/Match3';
+import ClickerGame from './games/clicker/ClickerGame';
 import LongcatGame from './games/longcat/LongcatGame';
 
 const catImages = [
