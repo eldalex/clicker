@@ -3,11 +3,11 @@
 const catImages = ['/clicker/cat1.png', '/clicker/cat2.png', '/clicker/cat3.png', '/clicker/cat4.png', '/clicker/cat5.png'];
 
 const achievementsList = [
-  { id: 'click_1', text: 'РџРµСЂРІС‹Р№ РєР»РёРє!', condition: stats => stats.score >= 1 },
-  { id: 'click_100', text: '100 РѕС‡РєРѕРІ!', condition: stats => stats.score >= 100 },
-  { id: 'click_200', text: '200 РѕС‡РєРѕРІ!', condition: stats => stats.score >= 200 },
-  { id: 'cps_5', text: '5 РєР»РёРєРѕРІ/СЃРµРє', condition: stats => stats.maxCPS >= 5 },
-  { id: 'cps_10', text: '10 РєР»РёРєРѕРІ/СЃРµРє', condition: stats => stats.maxCPS >= 10 }
+  { id: 'click_1', text: '\u041F\u0435\u0440\u0432\u044B\u0439 \u043A\u043B\u0438\u043A!', condition: stats => stats.score >= 1 },
+  { id: 'click_100', text: '100 \u043E\u0447\u043A\u043E\u0432!', condition: stats => stats.score >= 100 },
+  { id: 'click_200', text: '200 \u043E\u0447\u043A\u043E\u0432!', condition: stats => stats.score >= 200 },
+  { id: 'cps_5', text: '5 \u043A\u043B\u0438\u043A\u043E\u0432/\u0441\u0435\u043A', condition: stats => stats.maxCPS >= 5 },
+  { id: 'cps_10', text: '10 \u043A\u043B\u0438\u043A\u043E\u0432/\u0441\u0435\u043A', condition: stats => stats.maxCPS >= 10 }
 ];
 
 const playSound = (src) => {
@@ -186,7 +186,7 @@ export default function ClickerGame({ name, onBack }) {
           setRageEffect(true);
           addPoints(100);
           playSound('/clicker/fanfare.mp3');
-          setBoomText('Р”РёРєРѕСЃС‚СЊ!');
+          setBoomText('\u0414\u0438\u043A\u043E\u0441\u0442\u044C!');
 
           let i = 0;
           const interval = setInterval(() => {
