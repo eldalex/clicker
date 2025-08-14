@@ -658,14 +658,9 @@ function App() {
       ) : (
         <ClickerGame name={name} onBack={resetToSelector} />
       )}
+    </div>
+  );
+}
 
-
-
-
-
-
-
-
-
-
+export default App;
 
