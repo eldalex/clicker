@@ -12,11 +12,11 @@ const catImages = [
 ];
 
 const achievementsList = [
-  { id: 'click_1', text: 'РџРµСЂРІС‹Р№ РјСЏСѓ!', condition: stats => stats.score >= 1 },
-  { id: 'click_100', text: '100 РјСЏСѓ!', condition: stats => stats.score >= 100 },
-  { id: 'click_200', text: '200 РјСЏСѓ!', condition: stats => stats.score >= 200 },
-  { id: 'cps_5', text: '5 РєР»РёРєРѕРІ/СЃРµРє', condition: stats => stats.maxCPS >= 5 },
-  { id: 'cps_10', text: '10 РєР»РёРєРѕРІ/СЃРµРє', condition: stats => stats.maxCPS >= 10 }
+  { id: 'click_1', text: 'Первый мяу!', condition: stats => stats.score >= 1 },
+  { id: 'click_100', text: '100 мяу!', condition: stats => stats.score >= 100 },
+  { id: 'click_200', text: '200 мяу!', condition: stats => stats.score >= 200 },
+  { id: 'cps_5', text: '5 кликов/сек', condition: stats => stats.maxCPS >= 5 },
+  { id: 'cps_10', text: '10 кликов/сек', condition: stats => stats.maxCPS >= 10 }
 ];
 
 const playSound = (src) => {
@@ -63,7 +63,7 @@ function App() {
     } catch (_) {}
   }, []);
 
-  // РђРІС‚Рѕ-СЃС‚Р°СЂС‚ РґР»СЏ РєР»РёРєРµСЂР° РїСЂРё РІС‹Р±РѕСЂРµ Рё РЅР°Р»РёС‡РёРё РёРјРµРЅРё
+  // Авто-старт для кликера при выборе и наличии имени
   useEffect(() => {
     if (selectedGame === 'clicker' && name.trim() && !started) {
       startGame();
@@ -263,7 +263,7 @@ function App() {
           setRageEffect(true);
           addPoints(100);
           playSound('/fanfare.mp3');
-          setBoomText('рџ”Ґ РЇР РћРЎРўР¬!');
+          setBoomText('?? ЯРОСТЬ!');
 
           let i = 0;
           const interval = setInterval(() => {
@@ -338,53 +338,43 @@ function App() {
 
   const clickerCost = 100 * Math.pow(2, autoClickers);
 
-  // РРјСЏ РІРІРѕРґРёС‚СЃСЏ РЅР° СЃС‚Р°СЂС‚РѕРІРѕР№ СЃС‚СЂР°РЅРёС†Рµ (Р±РµР· РїСЂРѕРјРµР¶СѓС‚РѕС‡РЅРѕРіРѕ СЌРєСЂР°РЅР°)
+  // Имя вводится на стартовой странице (без промежуточного экрана)
 
   return (
     <div className="container">
       {!selectedGame ? (
         <div className="start">
-          <h2>Р’С‹Р±РµСЂРёС‚Рµ РёРіСЂСѓ</h2>
+          <h2>Выберите игру</h2>
           <div style={{ marginBottom: '0.5rem' }}>
-            РРјСЏ: <input value={name} onChange={e => setName(e.target.value)} />
+            Имя: <input value={name} onChange={e => setName(e.target.value)} />
           </div>
           <div className="game-choices">
-            <button className="game-card" onClick={() => setSelectedGame('clicker')}>рџђ± РљР»РёРєРµСЂ</button>
-            <button className="game-card" onClick={() => setSelectedGame('match3')}>рџџ© РўСЂРё РІ СЂСЏРґ</button>
-            <button className="game-card" onClick={() => setSelectedGame('longcat')}>рџђЌ Longcat</button>
+            <button className="game-card" onClick={() => setSelectedGame('clicker')}>?? Кликер</button>
+            <button className="game-card" onClick={() => setSelectedGame('match3')}>?? Три в ряд</button>
+            <button className="game-card" onClick={() => setSelectedGame('longcat')}>?? Longcat</button>
           </div>
         </div>
       ) : selectedGame === 'match3' ? (
         <div>
           <div style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
-            <button onClick={resetToSelector}>в†ђ РќР°Р·Р°Рґ Рє РІС‹Р±РѕСЂСѓ</button>
+            <button onClick={resetToSelector}>< Назад к выбору</button>
           </div>
           <Match3 />
         </div>
       ) : selectedGame === 'longcat' ? (
         <div>
           <div style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
-            <button onClick={resetToSelector}>в†ђ РќР°Р·Р°Рґ Рє РІС‹Р±РѕСЂСѓ</button>
+            <button onClick={resetToSelector}>< Назад к выбору</button>
           </div>
           <LongcatGame />
         </div>
       ) : (
-        {false && (
-        <div className="start">
-          <h2>РРјСЏ:</h2>
-          <input value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && startGame()} />
-          <button onClick={startGame}>РРіСЂР°С‚СЊ</button>
-          <div style={{ marginTop: '0.5rem' }}>
-            <button onClick={resetToSelector}>в†ђ РќР°Р·Р°Рґ Рє РІС‹Р±РѕСЂСѓ</button>
-          </div>
-        </div>)}
-      ) : (
         <div className="game-wrapper">
         <div className="game" ref={gameRef}>
           <div style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
-            <button onClick={resetToSelector}>в†ђ РќР°Р·Р°Рґ Рє РІС‹Р±РѕСЂСѓ</button>
+            <button onClick={resetToSelector}>< Назад к выбору</button>
           </div>
-          <h1>РџСЂРёРІРµС‚, {name}!</h1>
+          <h1>Привет, {name}!</h1>
           <div
             className="target"
             style={{
@@ -412,30 +402,30 @@ function App() {
                 key={c.id}
                 className="bonus-click"
                 style={{ left: `${50 + c.x}px`, top: `${50 + c.y}px` }}>
-                +1 РєР»РёРє
+                +1 клик
               </div>
             ))}
             {calmEffect && (
               <div className="zzz-bubble">Zzz...</div>
             )}
           </div>
-          <div>РћС‡РєРё: {score}</div>
-          <div>РњР°РєСЃ CPS: {maxCPS}</div>
+          <div>Очки: {score}</div>
+          <div>Макс CPS: {maxCPS}</div>
 
           <div className="achievements">
-            <h3>Р”РѕСЃС‚РёР¶РµРЅРёСЏ</h3>
+            <h3>Достижения</h3>
             <ul>
               {achievementsList.map(ach => (
-                <li key={ach.id}>{unlocked.has(ach.id) ? 'вњ…' : 'рџ”’'} {ach.text}</li>
+                <li key={ach.id}>{unlocked.has(ach.id) ? '?' : '??'} {ach.text}</li>
               ))}
             </ul>
           </div>
 
           <div className="leaderboard">
-            <h3>РўР°Р±Р»РёС†Р° Р»РёРґРµСЂРѕРІ</h3>
+            <h3>Таблица лидеров</h3>
             <table>
               <thead>
-                <tr><th>#</th><th>РРјСЏ</th><th>РћС‡РєРё</th></tr>
+                <tr><th>#</th><th>Имя</th><th>Очки</th></tr>
               </thead>
               <tbody>
                 {leaderboard.map((e, i) => (
@@ -445,13 +435,13 @@ function App() {
             </table>
           </div>
 
-          <button onClick={submitScore} disabled={score === 0}>РћС‚РїСЂР°РІРёС‚СЊ СЂРµР·СѓР»СЊС‚Р°С‚</button>
+          <button onClick={submitScore} disabled={score === 0}>Отправить результат</button>
           </div>
           <div className="side-panel">
-            <div>РљР»РёРє-РєРѕР№РЅС‹: {coins}</div>
-            <div>РђРІС‚РѕРєР»РёРєРµСЂРѕРІ: {autoClickers}</div>
+            <div>Клик-койны: {coins}</div>
+            <div>Автокликеров: {autoClickers}</div>
             <button onClick={buyClicker} disabled={coins < clickerCost}>
-              РљСѓРїРёС‚СЊ РєР»РёРєРµСЂ ({clickerCost})
+              Купить кликер ({clickerCost})
             </button>
           </div>
         </div>
