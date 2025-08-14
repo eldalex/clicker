@@ -31,12 +31,28 @@
     global: yes
     state: present
 
-- name: Клонировать репозиторий игры
+- name: Клонировать репозиторий игры (если не используем локальные исходники)
   git:
     repo: "{{ git_repo }}"
     dest: "{{ deploy_path }}"
     version: main
     force: yes
+  when: not use_local_sources
+  notify: Restart clicker backend
+
+- name: Синхронизировать локальные исходники на сервер (rsync)
+  synchronize:
+    src: "{{ local_src_path }}/"
+    dest: "{{ deploy_path }}/"
+    delete: yes
+    recursive: yes
+    rsync_opts:
+      - "--exclude=.git"
+      - "--exclude=.idea"
+      - "--exclude=node_modules"
+      - "--exclude=backend/build"
+      - "--exclude=frontend/node_modules"
+  when: use_local_sources
   notify: Restart clicker backend
 
 - name: Установить зависимости бэкенда

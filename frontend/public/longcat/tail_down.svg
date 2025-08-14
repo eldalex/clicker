@@ -46,25 +46,4 @@
      height="24"
      fill="#f0c38b"
      id="rect2" />
-  <rect
-     x="0.027420737"
-     y="-0.025706941"
-     width="32"
-     height="2"
-     fill="#5a3c2a"
-     id="rect3" />
-  <rect
-     x="0"
-     y="0"
-     width="2"
-     height="32"
-     fill="#5a3c2a"
-     id="rect4" />
-  <rect
-     x="30"
-     y="0"
-     width="2"
-     height="32"
-     fill="#5a3c2a"
-     id="rect5" />
 </svg>

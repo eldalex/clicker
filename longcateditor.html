@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Longcat Micro‑Editor → fromMap([...])</title>
+<style>
+  :root{--bg:#0f1220;--fg:#e7ecff;--muted:#9aa3b2;--btn:#1e2237;--btn2:#272b46;}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Arial, sans-serif;}
+  .wrap{max-width:1200px;margin:18px auto;padding:0 16px}
+  h1{font-size:18px;margin:0 0 12px}
+  .controls,.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .controls{margin-bottom:10px}
+  label.pair{display:flex;gap:6px;align-items:center;background:var(--btn);border:1px solid #2e3354;border-radius:8px;padding:6px 10px}
+  input[type=number]{width:64px;background:#0d1020;border:1px solid #2e3354;border-radius:6px;color:var(--fg);padding:4px 6px}
+  input[type=range]{width:160px}
+  input[type=file]{display:none}
+  button{background:var(--btn2);border:1px solid #313762;color:var(--fg);padding:8px 12px;border-radius:8px;cursor:pointer}
+  button.primary{background:#2a3160}
+  .grid-area{display:flex;gap:14px;align-items:flex-start}
+  .pane{flex:1 1 50%}
+  canvas{background:#10152d;border-radius:10px;display:block;box-shadow:0 0 0 1px #2a2f52 inset; image-rendering: pixelated;}
+  textarea{width:100%;height:320px;background:#0d1020;color:#e8eeff;border:1px solid #2e3354;border-radius:10px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace}
+  .hint{color:var(--muted);margin:8px 0}
+  .kbd{background:#161a33;border:1px solid #2d335c;border-radius:6px;padding:2px 6px;margin:0 2px;display:inline-block}
+  .pill{padding:4px 8px;border:1px solid #344;border-radius:999px;background:#141935;color:#cfe;display:inline-flex;gap:6px;align-items:center}
+  .drop{padding:10px;border:1px dashed #3a3f6f;border-radius:8px;color:#cad}
+  .padbox{display:flex;gap:6px;align-items:center;background:#121737;border:1px solid #2a2f5a;border-radius:10px;padding:6px 10px}
+  .padbox input{width:58px}
+  .ok{color:#a7f3d0}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Longcat Micro‑Editor → <code>fromMap([...])</code></h1>
+
+    <div class="controls">
+      <label class="pair">Строки <input id="rows" type="number" min="3" value="7"></label>
+      <label class="pair">Колонки <input id="cols" type="number" min="3" value="7"></label>
+      <label class="pair">Размер клетки <input id="cell" type="number" min="8" value="28"></label>
+      <label class="pair">Прозрачность фона <input id="alpha" type="range" min="0" max="100" value="70"></label>
+      <label class="pair"><input id="bgToggle" type="checkbox" checked> показывать фон</label>
+      <div class="padbox" title="Поля для фона (в долях клетки)">
+        Отступы фона (в клетках): 
+        L <input id="padL" type="number" step="0.1" value="0.5">
+        R <input id="padR" type="number" step="0.1" value="0.5">
+        T <input id="padT" type="number" step="0.1" value="0.5">
+        B <input id="padB" type="number" step="0.1" value="0.5">
+        <button id="presetHalf">0.5× по краям</button>
+        <button id="presetZero">0</button>
+      </div>
+      <button id="apply" class="primary">Применить сетку</button>
+      <input type="file" id="file" accept="image/*">
+      <button id="pickFile">Фон из файла…</button>
+      <span id="pasteStatus" style="opacity:.8">Вставь скрин <span class="kbd">Ctrl</span>+<span class="kbd">V</span> или перетащи сюда</span>
+    </div>
+
+    <div class="grid-area">
+      <div class="pane">
+        <div class="row">
+          <button id="perimeter">Периметр стеной</button>
+          <button id="clear">Очистить</button>
+          <button id="invert">Инвертировать</button>
+          <span class="pill">Режим:
+            <button id="modeWall">W стена</button>
+            <button id="modeEmpty">E пустота</button>
+            <button id="modeStart">S старт</button>
+            <span id="modeNow" style="opacity:.8">сейчас: стена</span>
+          </span>
+          <span class="pill">
+            <label class="pair" style="background:none;border:none;padding:0"><input id="includeS" type="checkbox" checked> включать <b>S</b> в экспорт</label>
+            <button id="clearStart">Очистить S</button>
+          </span>
+        </div>
+        <div id="drop" class="drop">📥 Вставь картинку (<b>Ctrl+V</b>) или перетащи файл. Фон под сеткой.</div>
+        <canvas id="cvs" width="210" height="210"></canvas>
+        <div class="hint">Клик — переключить клетку / поставить S. Вести мышью — рисовать. Горячие клавиши: <span class="kbd">W</span>/<span class="kbd">E</span>/<span class="kbd">S</span>/<span class="kbd">G</span>.</div>
+      </div>
+      <div class="pane">
+        <div class="row">
+          <button id="export">Export fromMap</button>
+          <button id="copy">Скопировать</button>
+          <button id="import">Импорт из текста</button>
+        </div>
+        <textarea id="out" placeholder="Здесь появится экспортированный код fromMap([...])"></textarea>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const qs = s => document.querySelector(s);
+  const cvs = qs('#cvs'), ctx = cvs.getContext('2d');
+  const rowsI = qs('#rows'), colsI = qs('#cols'), cellI = qs('#cell');
+  const alphaI = qs('#alpha'), bgToggle = qs('#bgToggle');
+  const padL = qs('#padL'), padR = qs('#padR'), padT = qs('#padT'), padB = qs('#padB');
+  const presetHalf = qs('#presetHalf'), presetZero = qs('#presetZero');
+  const applyBtn = qs('#apply'), perimeterBtn = qs('#perimeter'), clearBtn = qs('#clear'), invertBtn = qs('#invert');
+  const exportBtn = qs('#export'), copyBtn = qs('#copy'), importBtn = qs('#import');
+  const out = qs('#out'), modeWallBtn = qs('#modeWall'), modeEmptyBtn = qs('#modeEmpty'), modeStartBtn = qs('#modeStart'), modeNow = qs('#modeNow');
+  const includeS = qs('#includeS'), clearStartBtn = qs('#clearStart');
+  const file = qs('#file'), pickFile = qs('#pickFile'), drop = qs('#drop'), pasteStatus = qs('#pasteStatus');
+
+  let R=7,C=7,S=28,mode='wall',grid=[],isDown=false,bgImg=null;
+  let start = {x:-1,y:-1};
+
+  function initGrid(){ grid = Array.from({length:R},()=>Array.from({length:C},()=>0)); start={x:-1,y:-1}; }
+  function resizeCanvas(){ 
+    cvs.width=C*S; cvs.height=R*S; 
+    // Force visible resize (CSS)
+    cvs.style.width = (C*S) + 'px';
+    cvs.style.height = (R*S) + 'px';
+    draw(); 
+  }
+
+  function drawBg(){
+    if (!bgImg || !bgToggle.checked) return;
+    const a = +alphaI.value/100;
+    ctx.save(); ctx.globalAlpha = a;
+
+    const pL = Math.max(0, +padL.value)*S;
+    const pR = Math.max(0, +padR.value)*S;
+    const pT = Math.max(0, +padT.value)*S;
+    const pB = Math.max(0, +padB.value)*S;
+    const x0 = pL, y0 = pT, w = Math.max(1, cvs.width - pL - pR), h = Math.max(1, cvs.height - pT - pB);
+
+    const iw = bgImg.naturalWidth, ih = bgImg.naturalHeight;
+    const r = Math.min(w/iw, h/ih);
+    const dw = Math.round(iw*r), dh = Math.round(ih*r);
+    const dx = Math.round(x0 + (w - dw)/2), dy = Math.round(y0 + (h - dh)/2);
+    ctx.drawImage(bgImg, dx, dy, dw, dh);
+    ctx.restore();
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,cvs.width,cvs.height);
+    drawBg();
+    // walls
+    ctx.fillStyle = '#e9edff';
+    for (let y=0;y<R;y++) for (let x=0;x<C;x++) if (grid[y][x]){
+      ctx.fillRect(x*S, y*S, S, S);
+    }
+    // start
+    if (start.x>=0 && start.y>=0){
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.85)';
+      ctx.fillRect(start.x*S, start.y*S, S, S);
+      ctx.fillStyle = '#0b1020';
+      ctx.font = (S*0.6)+'px monospace';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('S', start.x*S + S/2, start.y*S + S/2 + 1);
+    }
+    // grid lines
+    ctx.strokeStyle = '#3a3f6f'; ctx.lineWidth = 1;
+    for (let y=0;y<=R;y++){ ctx.beginPath(); ctx.moveTo(0, y*S+0.5); ctx.lineTo(C*S, y*S+0.5); ctx.stroke(); }
+    for (let x=0;x<=C;x++){ ctx.beginPath(); ctx.moveTo(x*S+0.5, 0); ctx.lineTo(x*S+0.5, R*S); ctx.stroke(); }
+  }
+
+  function applySettings(){
+    R = Math.max(3, +rowsI.value|0);
+    C = Math.max(3, +colsI.value|0);
+    S = Math.max(8, +cellI.value|0);
+    initGrid(); resizeCanvas();
+  }
+
+  function placeStart(x,y){
+    if (x<0||y<0||x>=C||y>=R) return;
+    grid[y][x] = 0; // ensure empty
+    start = {x,y};
+    draw();
+  }
+
+  function toggleCell(cx,cy,set=null){
+    if (cx<0||cy<0||cx>=C||cy>=R) return;
+    if (set === 'start'){ placeStart(cx,cy); return; }
+    grid[cy][cx] = (set ? (set==='wall'?1:0) : (grid[cy][cx]?0:1));
+    if (grid[cy][cx]===1 && start.x===cx && start.y===cy) start={x:-1,y:-1};
+    draw();
+  }
+
+  // Mouse
+  let isDownLocal=false;
+  cvs.addEventListener('mousedown', e=>{ isDownLocal=true;
+    const r = cvs.getBoundingClientRect();
+    toggleCell(Math.floor((e.clientX-r.left)/S), Math.floor((e.clientY-r.top)/S), mode);
+  });
+  cvs.addEventListener('mousemove', e=>{ if(!isDownLocal || mode==='start') return;
+    const r = cvs.getBoundingClientRect();
+    toggleCell(Math.floor((e.clientX-r.left)/S), Math.floor((e.clientY-r.top)/S), mode);
+  });
+  window.addEventListener('mouseup', ()=> isDownLocal=false);
+
+  // Buttons
+  applyBtn.onclick = applySettings;
+  perimeterBtn.onclick = ()=>{
+    for (let x=0;x<C;x++){ grid[0][x]=1; grid[R-1][x]=1; }
+    for (let y=0;y<R;y++){ grid[y][0]=1; grid[y][C-1]=1; }
+    if (start.x===0||start.x===C-1||start.y===0||start.y===R-1) start={x:-1,y:-1};
+    draw();
+  };
+  clearBtn.onclick = ()=>{ initGrid(); draw(); };
+  invertBtn.onclick = ()=>{ for (let y=0;y<R;y++) for (let x=0;x<C;x++) grid[y][x]=grid[y][x]?0:1; if (start.x>=0 && grid[start.y][start.x]===1) start={x:-1,y:-1}; draw(); };
+  modeWallBtn.onclick = ()=>{ mode='wall'; modeNow.textContent='сейчас: стена'; };
+  modeEmptyBtn.onclick = ()=>{ mode='empty'; modeNow.textContent='сейчас: пустота'; };
+  modeStartBtn.onclick = ()=>{ mode='start'; modeNow.textContent='сейчас: старт (S)'; };
+  clearStartBtn.onclick = ()=>{ start={x:-1,y:-1}; draw(); };
+
+  // Auto-apply on inputs change
+  [rowsI, colsI, cellI].forEach(el=>{
+    el.addEventListener('change', applySettings);
+    el.addEventListener('input', e=>{
+      // only if user stops sliding/typing: debounce
+      clearTimeout(el._t); el._t = setTimeout(applySettings, 250);
+    });
+  });
+
+  bgToggle.onchange = draw; alphaI.oninput = draw;
+  [padL,padR,padT,padB].forEach(i=> i.addEventListener('input', draw));
+  presetHalf.onclick = ()=>{ padL.value=padR.value=padT.value=padB.value=0.5; draw(); };
+  presetZero.onclick = ()=>{ padL.value=padR.value=padT.value=padB.value=0; draw(); };
+
+  exportBtn.onclick = ()=>{
+    const incS = includeS.checked;
+    const rows = [];
+    for (let y=0;y<R;y++){
+      let line = '';
+      for (let x=0;x<C;x++){
+        if (incS && start.x===x && start.y===y) line += 'S';
+        else line += grid[y][x] ? '#' : '.';
+      }
+      rows.push(line);
+    }
+    out.value = `(() => {\n  return fromMap([\n${rows.map(s=>"    '"+s+"',").join('\n')}\n  ]);\n})(),`;
+  };
+  copyBtn.onclick = async ()=>{ if(!out.value) exportBtn.onclick(); await navigator.clipboard.writeText(out.value); copyBtn.textContent='Скопировано ✓'; setTimeout(()=>copyBtn.textContent='Скопировать',1000); };
+  importBtn.onclick = ()=>{
+    const m = out.value.match(/'([#\.S]+)'/g); if(!m) return;
+    const lines = m.map(s=>s.slice(1,-1));
+    rowsI.value = lines.length; colsI.value = lines[0].length;
+    R=+rowsI.value; C=+colsI.value; S=+cellI.value;
+    initGrid();
+    for (let y=0;y<R;y++) for (let x=0;x<C;x++){
+      const ch = lines[y][x];
+      if (ch==='#') grid[y][x]=1; else grid[y][x]=0;
+      if (ch==='S') start={x,y};
+    }
+    resizeCanvas();
+  };
+
+  // File, DnD, Paste
+  pickFile.onclick = ()=> file.click();
+  file.onchange = ()=>{ const f=file.files?.[0]; if(!f) return; loadBg(URL.createObjectURL(f)); };
+  ['dragenter','dragover','dragleave','drop'].forEach(ev=>drop.addEventListener(ev, e=>{e.preventDefault(); e.stopPropagation();}));
+  drop.addEventListener('drop', e=>{ const f=e.dataTransfer.files?.[0]; if(f && f.type.startsWith('image/')) loadBg(URL.createObjectURL(f)); });
+  window.addEventListener('paste', e=>{
+    const it = [...(e.clipboardData?.items||[])].find(i=>i.type?.startsWith('image/'));
+    if (it){ loadBg(URL.createObjectURL(it.getAsFile())); e.preventDefault(); }
+  });
+
+  function loadBg(url){
+    const img = new Image();
+    img.onload = ()=>{ bgImg = img; pasteStatus.textContent='Фон загружен ✓'; draw(); };
+    img.onerror = ()=> pasteStatus.textContent='Не удалось загрузить фон';
+    img.src = url;
+  }
+
+  // Shortcuts
+  window.addEventListener('keydown', e=>{
+    if (e.key==='w'||e.key==='W'){ mode='wall'; modeNow.textContent='сейчас: стена'; }
+    if (e.key==='e'||e.key==='E'){ mode='empty'; modeNow.textContent='сейчас: пустота'; }
+    if (e.key==='s'||e.key==='S'){ mode='start'; modeNow.textContent='сейчас: старт (S)'; }
+    if (e.key==='g'||e.key==='G'){ bgToggle.checked = !bgToggle.checked; draw(); }
+  });
+
+  // Init
+  (function init(){ rowsI.value=7; colsI.value=7; cellI.value=28; 
+    applySettings(); 
+    // default half-cell padding for nicer fit
+    padL.value=padR.value=padT.value=padB.value=0.5; draw();
+  })();
+})();
+</script>
+</body>
+</html>

@@ -8,3 +8,5 @@ frontend_dir: "{{ deploy_path }}/frontend"
 frontend_build_dir: "{{ backend_dir }}/build"
 deploy_build_dir: "{{ backend_dir }}/build"
 service_name: click-backend
+use_local_sources: false
+local_src_path: "{{ playbook_dir }}/.."
