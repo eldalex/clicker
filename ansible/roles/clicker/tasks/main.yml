@@ -1,28 +1,14 @@
----
-- name: Установить зависимости для добавления NodeSource
+﻿---
+
+
+- name: Install build tools for native addons
   apt:
     name:
-      - apt-transport-https
-      - ca-certificates
-      - curl
+      - build-essential
+      - python3
+      - make
+      - g++
     state: present
-    update_cache: yes
-
-- name: Добавить GPG-ключ NodeSource
-  apt_key:
-    url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
-    state: present
-
-- name: Добавить репозиторий NodeSource для Node.js 18.x
-  apt_repository:
-    repo: "deb https://deb.nodesource.com/node_18.x {{ ansible_distribution_release }} main"
-    state: present
-    filename: nodesource
-
-- name: Установить/обновить Node.js (NodeSource 18.x)
-  apt:
-    name: nodejs
-    state: latest
     update_cache: yes
 
 - name: Установить pm2 глобально через npm
@@ -105,3 +91,12 @@
     name: "{{ service_name }}"
     state: started
     enabled: yes
+
+- name: Ensure writable DB directory exists
+  file:
+    path: /var/lib/clicker
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'
+
