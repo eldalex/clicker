@@ -416,7 +416,7 @@ function App() {
             <h3>&#1044;&#1086;&#1089;&#1090;&#1080;&#1078;&#1077;&#1085;&#1080;&#1103;</h3>
             <ul>
               {achievementsList.map(ach => (
-                <li key={ach.id}>{unlocked.has(ach.id) ? '?' : ''} {ach.text}</li>
+                <li key={ach.id}>{unlocked.has(ach.id) ? "✔" : ""} {ach.text}</li>
               ))}
             </ul>
           </div>
