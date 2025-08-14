@@ -13,11 +13,13 @@ FROM node:18-alpine
 WORKDIR /app
 # Копируем файлы пакетов и устанавливаем зависимости бэкенда
 COPY backend/package.json backend/package-lock.json ./ 
-RUN npm install
+# better-sqlite3 может требовать сборочные зависимости
+RUN apk add --no-cache python3 make g++ && npm install && apk del python3 make g++ || npm install
 # Копируем исходники бэкенда
 COPY backend/. .
 # Копируем собранный фронтенд из предыдущего этапа
-COPY --from=build-frontend /app/backend/build ./build
+# Vite по умолчанию кладет в dist
+COPY --from=build-frontend /app/frontend/dist ./build
 COPY frontend/public ./public
 
 # Указываем порт

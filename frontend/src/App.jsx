@@ -34,6 +34,7 @@ function App() {
   const [maxCPS, setMaxCPS] = useState(0);
   const [unlocked, setUnlocked] = useState(new Set());
   const [leaderboard, setLeaderboard] = useState([]);
+  const [loadToken, setLoadToken] = useState(null);
   const clickTimesRef = useRef([]);
   const [boomText, setBoomText] = useState(null);
   const [rageStart, setRageStart] = useState(null);
@@ -58,6 +59,7 @@ function App() {
   useEffect(() => {
     if (!started) return;
     localStorage.setItem('playerName', name);
+    localStorage.setItem('player_name', name);
     localStorage.setItem('score', score);
     localStorage.setItem('coins', coins);
     localStorage.setItem('autoClickers', autoClickers);
@@ -65,8 +67,23 @@ function App() {
   }, [name, score, coins, autoClickers, unlocked, started]);
 
   useEffect(() => {
-    fetch('/api/scores').then(res => res.json()).then(setLeaderboard).catch(() => {});
-  }, []);
+    fetch('/api/scores?game=' + encodeURIComponent(selectedGame || 'clicker'))
+      .then(res => res.json()).then(setLeaderboard).catch(() => {});
+  }, [selectedGame]);
+
+  // Fetch load_token after starting (name entered) for the selected game
+  useEffect(() => {
+    if (!started) return;
+    const user = (name || '').trim();
+    const game = selectedGame || 'clicker';
+    if (!user) return;
+    fetch(`/api/score?user=${encodeURIComponent(user)}&game=${encodeURIComponent(game)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.load_token) setLoadToken(data.load_token);
+      })
+      .catch(() => {});
+  }, [started, name, selectedGame]);
 
   useEffect(() => {
     const decayInterval = setInterval(() => {
@@ -129,7 +146,7 @@ function App() {
     const trimmed = name.trim();
     if (!trimmed) return;
 
-    const savedName = localStorage.getItem('playerName');
+    const savedName = localStorage.getItem('player_name') || localStorage.getItem('playerName');
     if (savedName === trimmed) {
       const savedScore = parseInt(localStorage.getItem('score'), 10);
       if (!isNaN(savedScore)) {
@@ -270,11 +287,27 @@ function App() {
   };
 
   const submitScore = () => {
+    const user = (name || '').trim();
+    const game = selectedGame || 'clicker';
+    if (!user) return;
     fetch('/api/score', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, score })
-    }).then(res => res.json()).then(setLeaderboard);
+      body: JSON.stringify({ user, game, score, load_token: loadToken })
+    })
+      .then(async res => {
+        if (res.status === 409) {
+          // Try to refresh token silently for next attempt
+          try {
+            const fresh = await fetch(`/api/score?user=${encodeURIComponent(user)}&game=${encodeURIComponent(game)}`).then(r => r.json());
+            if (fresh && fresh.load_token) setLoadToken(fresh.load_token);
+          } catch (e) {}
+          throw new Error('Save rejected (load_token). Try again.');
+        }
+        return res.json();
+      })
+      .then(setLeaderboard)
+      .catch(() => {});
   };
 
   const buyClicker = () => {
