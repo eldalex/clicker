@@ -1,13 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
+﻿import React, { useEffect, useRef, useState } from 'react';
 
-const catImages = ['/cat1.png', '/cat2.png', '/cat3.png', '/cat4.png', '/cat5.png'];
+const catImages = ['/clicker/cat1.png', '/clicker/cat2.png', '/clicker/cat3.png', '/clicker/cat4.png', '/clicker/cat5.png'];
 
 const achievementsList = [
-  { id: 'click_1', text: 'Первый клик!', condition: stats => stats.score >= 1 },
-  { id: 'click_100', text: '100 очков!', condition: stats => stats.score >= 100 },
-  { id: 'click_200', text: '200 очков!', condition: stats => stats.score >= 200 },
-  { id: 'cps_5', text: '5 кликов/сек', condition: stats => stats.maxCPS >= 5 },
-  { id: 'cps_10', text: '10 кликов/сек', condition: stats => stats.maxCPS >= 10 }
+  { id: 'click_1', text: 'РџРµСЂРІС‹Р№ РєР»РёРє!', condition: stats => stats.score >= 1 },
+  { id: 'click_100', text: '100 РѕС‡РєРѕРІ!', condition: stats => stats.score >= 100 },
+  { id: 'click_200', text: '200 РѕС‡РєРѕРІ!', condition: stats => stats.score >= 200 },
+  { id: 'cps_5', text: '5 РєР»РёРєРѕРІ/СЃРµРє', condition: stats => stats.maxCPS >= 5 },
+  { id: 'cps_10', text: '10 РєР»РёРєРѕРІ/СЃРµРє', condition: stats => stats.maxCPS >= 10 }
 ];
 
 const playSound = (src) => {
@@ -43,7 +43,7 @@ export default function ClickerGame({ name, onBack }) {
   const lastClickTimeRef = useRef(Date.now());
   const activeClickDurationRef = useRef(0);
 
-  // Инициализация из localStorage и получения токена/счёта
+  // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РёР· localStorage Рё РїРѕР»СѓС‡РµРЅРёСЏ С‚РѕРєРµРЅР°/СЃС‡С‘С‚Р°
   useEffect(() => {
     const savedName = localStorage.getItem('player_name') || localStorage.getItem('playerName');
     if (savedName === name) {
@@ -73,7 +73,7 @@ export default function ClickerGame({ name, onBack }) {
     }
   }, [name]);
 
-  // Сохранение прогресса
+  // РЎРѕС…СЂР°РЅРµРЅРёРµ РїСЂРѕРіСЂРµСЃСЃР°
   useEffect(() => {
     localStorage.setItem('playerName', name);
     localStorage.setItem('player_name', name);
@@ -83,7 +83,7 @@ export default function ClickerGame({ name, onBack }) {
     localStorage.setItem('unlocked', JSON.stringify(Array.from(unlocked)));
   }, [name, score, coins, autoClickers, unlocked]);
 
-  // Декремент состояния кота при простое
+  // Р”РµРєСЂРµРјРµРЅС‚ СЃРѕСЃС‚РѕСЏРЅРёСЏ РєРѕС‚Р° РїСЂРё РїСЂРѕСЃС‚РѕРµ
   useEffect(() => {
     const decay = setInterval(() => {
       const now = Date.now();
@@ -92,7 +92,7 @@ export default function ClickerGame({ name, onBack }) {
         setImageIndex(v => Math.max(v - 1, 0));
         lastClickTimeRef.current = now;
         activeClickDurationRef.current = Math.max(activeClickDurationRef.current - 5000, 0);
-        playSound('/purr.mp3');
+        playSound('/clicker/purr.mp3');
         setCalmEffect(true);
         setTimeout(() => setCalmEffect(false), 1000);
       }
@@ -100,14 +100,14 @@ export default function ClickerGame({ name, onBack }) {
     return () => clearInterval(decay);
   }, [imageIndex]);
 
-  // Автокликеры
+  // РђРІС‚РѕРєР»РёРєРµСЂС‹
   useEffect(() => {
     if (autoClickers === 0) return;
     const t = setInterval(() => addPoints(autoClickers), 1000);
     return () => clearInterval(t);
   }, [autoClickers]);
 
-  // Появляющаяся цель
+  // РџРѕСЏРІР»СЏСЋС‰Р°СЏСЃСЏ С†РµР»СЊ
   useEffect(() => {
     const moveTarget = () => {
       if (!gameRef.current) return;
@@ -145,7 +145,7 @@ export default function ClickerGame({ name, onBack }) {
         achievementsList.forEach(ach => {
           if (!updated.has(ach.id) && ach.condition({ score: newScore, maxCPS })) {
             updated.add(ach.id);
-            playSound('/fanfare.mp3');
+            playSound('/clicker/fanfare.mp3');
           }
         });
         return updated;
@@ -170,7 +170,7 @@ export default function ClickerGame({ name, onBack }) {
     if (cps > maxCPS) setMaxCPS(cps);
 
     addPoints(1);
-    playSound('/meow.mp3');
+    playSound('/clicker/meow.mp3');
     setBoomText(['+1', 'MEOW!', 'WOW'][Math.floor(Math.random() * 3)]);
     setTimeout(() => setBoomText(null), 500);
 
@@ -185,8 +185,8 @@ export default function ClickerGame({ name, onBack }) {
           setRageActive(true);
           setRageEffect(true);
           addPoints(100);
-          playSound('/fanfare.mp3');
-          setBoomText('Дикость!');
+          playSound('/clicker/fanfare.mp3');
+          setBoomText('Р”РёРєРѕСЃС‚СЊ!');
 
           let i = 0;
           const interval = setInterval(() => {
@@ -259,9 +259,9 @@ export default function ClickerGame({ name, onBack }) {
     <div className="game-wrapper">
       <div className="game" ref={gameRef}>
         <div style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
-          <button onClick={onBack}>Назад к выбору игры</button>
+          <button onClick={onBack}>РќР°Р·Р°Рґ Рє РІС‹Р±РѕСЂСѓ РёРіСЂС‹</button>
         </div>
-        <h1>Добро пожаловать, {name}!</h1>
+        <h1>Р”РѕР±СЂРѕ РїРѕР¶Р°Р»РѕРІР°С‚СЊ, {name}!</h1>
         <div
           className="target"
           style={{ left: `${targetPos.x}px`, top: `${targetPos.y}px`, display: targetVisible ? 'block' : 'none' }}
@@ -277,28 +277,28 @@ export default function ClickerGame({ name, onBack }) {
           )}
           {bonusClicks.map(c => (
             <div key={c.id} className="bonus-click" style={{ left: `${50 + c.x}px`, top: `${50 + c.y}px` }}>
-              +1 бонус
+              +1 Р±РѕРЅСѓСЃ
             </div>
           ))}
           {calmEffect && <div className="zzz-bubble">Zzz...</div>}
         </div>
-        <div>Очки: {score}</div>
-        <div>Макс CPS: {maxCPS}</div>
+        <div>РћС‡РєРё: {score}</div>
+        <div>РњР°РєСЃ CPS: {maxCPS}</div>
 
         <div className="achievements">
-          <h3>Достижения</h3>
+          <h3>Р”РѕСЃС‚РёР¶РµРЅРёСЏ</h3>
           <ul>
             {achievementsList.map(ach => (
-              <li key={ach.id}>{unlocked.has(ach.id) ? '✔' : ''} {ach.text}</li>
+              <li key={ach.id}>{unlocked.has(ach.id) ? 'вњ”' : ''} {ach.text}</li>
             ))}
           </ul>
         </div>
 
         <div className="leaderboard">
-          <h3>Таблица лидеров</h3>
+          <h3>РўР°Р±Р»РёС†Р° Р»РёРґРµСЂРѕРІ</h3>
           <table>
             <thead>
-              <tr><th>#</th><th>Имя</th><th>Очки</th></tr>
+              <tr><th>#</th><th>РРјСЏ</th><th>РћС‡РєРё</th></tr>
             </thead>
             <tbody>
               {leaderboard.map((e, i) => (
@@ -308,14 +308,15 @@ export default function ClickerGame({ name, onBack }) {
           </table>
         </div>
 
-        <button onClick={submitScore} disabled={score === 0}>Отправить результат</button>
+        <button onClick={submitScore} disabled={score === 0}>РћС‚РїСЂР°РІРёС‚СЊ СЂРµР·СѓР»СЊС‚Р°С‚</button>
       </div>
       <div className="side-panel">
-        <div>Монеты: {coins}</div>
-        <div>Автокликеры: {autoClickers}</div>
-        <button onClick={buyClicker} disabled={coins < clickerCost}>Купить кликер ({clickerCost})</button>
+        <div>РњРѕРЅРµС‚С‹: {coins}</div>
+        <div>РђРІС‚РѕРєР»РёРєРµСЂС‹: {autoClickers}</div>
+        <button onClick={buyClicker} disabled={coins < clickerCost}>РљСѓРїРёС‚СЊ РєР»РёРєРµСЂ ({clickerCost})</button>
       </div>
     </div>
   );
 }
+
 
