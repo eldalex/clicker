@@ -33,9 +33,7 @@ const achievementsList = [
 
 
 
-const playSound = (src) => {
-
-  const audio = new Audio(src);
+const playSound = () => {};
 
   audio.play();
 
@@ -173,8 +171,6 @@ function App() {
         lastClickTimeRef.current = now;
 
         activeClickDurationRef.current = Math.max(activeClickDurationRef.current - 5000, 0);
-
-        playSound('/purr.mp3');
 
         setCalmEffect(true);
 
@@ -389,8 +385,6 @@ function App() {
 
             updated.add(ach.id);
 
-            playSound('/fanfare.mp3');
-
           }
 
         });
@@ -445,8 +439,6 @@ function App() {
 
     addPoints(1);
 
-    playSound('/meow.mp3');
-
     setBoomText(['+1', 'MEOW!', 'WOW'][Math.floor(Math.random() * 3)]);
 
     setTimeout(() => setBoomText(null), 500);
@@ -474,8 +466,6 @@ function App() {
           setRageEffect(true);
 
           addPoints(100);
-
-          playSound('/fanfare.mp3');
 
           setBoomText('&#1044;&#1080;&#1082;&#1086;&#1089;&#1090;&#1100;!');
 
