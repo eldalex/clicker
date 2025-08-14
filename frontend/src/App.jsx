@@ -11,7 +11,13 @@ const catImages = [
   '/cat5.png'
 ];
 
-const achievementsList = [\n  { id: "click_1", text: "&#1055;&#1077;&#1088;&#1074;&#1099;&#1081; &#1082;&#1083;&#1080;&#1082;!", condition: stats => stats.score >= 1 },\n  { id: "click_100", text: "100 &#1086;&#1095;&#1082;&#1086;&#1074;!", condition: stats => stats.score >= 100 },\n  { id: "click_200", text: "200 &#1086;&#1095;&#1082;&#1086;&#1074;!", condition: stats => stats.score >= 200 },\n  { id: "cps_5", text: "5 &#1082;&#1083;&#1080;&#1082;&#1086;&#1074;/&#1089;&#1077;&#1082", condition: stats => stats.maxCPS >= 5 },\n  { id: "cps_10", text: "10 &#1082;&#1083;&#1080;&#1082;&#1086;&#1074;/&#1089;&#1077;&#1082", condition: stats => stats.maxCPS >= 10 }\n];
+const achievementsList = [
+  { id: 'click_1', text: 'Первый клик!', condition: stats => stats.score >= 1 },
+  { id: 'click_100', text: '100 очков!', condition: stats => stats.score >= 100 },
+  { id: 'click_200', text: '200 очков!', condition: stats => stats.score >= 200 },
+  { id: 'cps_5', text: '5 кликов/сек', condition: stats => stats.maxCPS >= 5 },
+  { id: 'cps_10', text: '10 кликов/сек', condition: stats => stats.maxCPS >= 10 }
+];
 
 const playSound = (src) => {
   const audio = new Audio(src);
