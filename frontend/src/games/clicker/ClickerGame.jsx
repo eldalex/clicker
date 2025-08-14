@@ -16,10 +16,13 @@ const achievementsList = [
   { id: 'cps_10', text: '10 \u043A\u043B\u0438\u043A\u043E\u0432/\u0441\u0435\u043A', condition: stats => stats.maxCPS >= 10 }
 ];
 
-const playSound = (src) => {
+const playSoundNew = (audioRef) => {
   try {
-    const audio = new Audio(src);
-    audio.play();
+    const a = audioRef.current;
+    if (!a) return;
+    a.currentTime = 0;
+    const p = a.play();
+    if (p && typeof p.catch === 'function') p.catch(() => {});
   } catch (_) {}
 };
 
@@ -48,6 +51,9 @@ export default function ClickerGame({ name, onBack }) {
   const clickTimesRef = useRef([]);
   const lastClickTimeRef = useRef(Date.now());
   const activeClickDurationRef = useRef(0);
+  const meowRef = useRef(null);
+  const fanfareRef = useRef(null);
+  const purrRef = useRef(null);
 
   useEffect(() => {
     const savedName = localStorage.getItem('player_name') || localStorage.getItem('playerName');
@@ -94,7 +100,7 @@ export default function ClickerGame({ name, onBack }) {
         setImageIndex(v => Math.max(v - 1, 0));
         lastClickTimeRef.current = now;
         activeClickDurationRef.current = Math.max(activeClickDurationRef.current - 5000, 0);
-        playSound('/clicker/purr.mp3');
+        playSoundNew(purrRef);
         setCalmEffect(true);
         setTimeout(() => setCalmEffect(false), 1000);
       }
@@ -170,7 +176,7 @@ export default function ClickerGame({ name, onBack }) {
     if (cps > maxCPS) setMaxCPS(cps);
 
     addPoints(1);
-    playSound('/clicker/meow.mp3');
+    playSoundNew(meowRef);
     setBoomText(['+1', 'MEOW!', 'WOW'][Math.floor(Math.random() * 3)]);
     setTimeout(() => setBoomText(null), 500);
 
@@ -185,7 +191,7 @@ export default function ClickerGame({ name, onBack }) {
           setRageActive(true);
           setRageEffect(true);
           addPoints(100);
-          playSound('/clicker/fanfare.mp3');
+          playSoundNew(fanfareRef);
           setBoomText('\u0414\u0438\u043A\u043E\u0441\u0442\u044C!');
 
           let i = 0;
@@ -258,6 +264,9 @@ export default function ClickerGame({ name, onBack }) {
   return (
     <div className="game-wrapper">
       <div className="game" ref={gameRef}>
+        <audio ref={meowRef} src="/clicker/meow.mp3" preload="auto" />
+        <audio ref={fanfareRef} src="/clicker/fanfare.mp3" preload="auto" />
+        <audio ref={purrRef} src="/clicker/purr.mp3" preload="auto" />
         <div style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
           <button onClick={onBack}>{'\u041D\u0430\u0437\u0430\u0434 \u043A \u0432\u044B\u0431\u043E\u0440\u0443 \u0438\u0433\u0440\u044B'}</button>
         </div>
@@ -318,4 +327,3 @@ export default function ClickerGame({ name, onBack }) {
     </div>
   );
 }
-
