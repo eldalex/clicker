@@ -49,3 +49,4 @@
   register: nginx_test
   changed_when: false
   failed_when: nginx_test.rc != 0
+

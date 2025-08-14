@@ -1,21 +1,22 @@
 server {
-    # Убираем SSL, слушаем только HTTP на 80-м порту.
     listen 80;
-    server_name {{ domain }};
+    listen [::]:80;
+    server_name click.l-alex.ru;
 
-    root {{ deploy_build_dir }};
+    root /var/www/click/backend/build;
     index index.html;
 
-    # Основной блок: отдаём файлы React
+    # SPA (Vite build)
     location / {
         try_files $uri $uri/ /index.html;
     }
 
+    # Backend API proxy
     location /api/ {
         proxy_pass http://127.0.0.1:3000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
+        proxy_set_header Connection "upgrade";
         proxy_set_header Host $host;
         proxy_cache_bypass $http_upgrade;
     }
@@ -23,10 +24,10 @@ server {
     location = /favicon.ico { access_log off; log_not_found off; }
     location = /robots.txt { access_log off; log_not_found off; }
 
-    # лока для certbot
+    # Let's Encrypt HTTP-01 webroot
     location ^~ /.well-known/acme-challenge/ {
-        alias {{ deploy_build_dir }}/.well-known/acme-challenge/;
+        root /var/www/letsencrypt;
+        default_type "text/plain";
         try_files $uri =404;
     }
-
 }

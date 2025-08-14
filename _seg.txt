@@ -1,0 +1,3 @@
+            <button className="game-card" onClick={() => setSelectedGame('clicker')}>🐱 Кликер</button>
+            <button className="game-card" onClick={() => setSelectedGame('match3')}>🟩 Три в ряд</button>
+            <button className="game-card" onClick={() => setSelectedGame('longcat')}>🐍 Longcat</button>

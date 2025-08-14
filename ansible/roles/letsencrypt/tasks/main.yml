@@ -1,4 +1,4 @@
----
+﻿---
 - name: Установить Certbot
   apt:
     name: certbot
@@ -7,7 +7,7 @@
 
 - name: Убедиться, что каталог webroot существует
   file:
-    path: "{{ deploy_build_dir }}/.well-known/acme-challenge"
+    path: "/var/www/letsencrypt/.well-known/acme-challenge"
     state: directory
     owner: www-data
     group: www-data
@@ -36,7 +36,7 @@
   shell: >
     certbot certonly --non-interactive --agree-tos
     --email {{ cert_email }}
-    --webroot -w {{ deploy_build_dir }}
+    --webroot -w /var/www/letsencrypt
     -d {{ domain }}
   when: not cert_exists.stat.exists
   notify: Reload nginx

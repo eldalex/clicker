@@ -3,3 +3,4 @@ frontend/node_modules
 .idea
 restart.sh
 codex_prompt_longcat.md
+clicker_auth_records_prompt.md
