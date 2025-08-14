@@ -11,13 +11,7 @@ const catImages = [
   '/cat5.png'
 ];
 
-const achievementsList = [
-  { id: "click_1", text: "Первый клик!", condition: stats => stats.score >= 1 },
-  { id: "click_100", text: "100 очков!", condition: stats => stats.score >= 100 },
-  { id: "click_200", text: "200 очков!", condition: stats => stats.score >= 200 },
-  { id: "cps_5", text: "5 кликов/сек", condition: stats => stats.maxCPS >= 5 },
-  { id: "cps_10", text: "10 кликов/сек", condition: stats => stats.maxCPS >= 10 }
-];
+const achievementsList = [\n  { id: "click_1", text: "&#1055;&#1077;&#1088;&#1074;&#1099;&#1081; &#1082;&#1083;&#1080;&#1082;!", condition: stats => stats.score >= 1 },\n  { id: "click_100", text: "100 &#1086;&#1095;&#1082;&#1086;&#1074;!", condition: stats => stats.score >= 100 },\n  { id: "click_200", text: "200 &#1086;&#1095;&#1082;&#1086;&#1074;!", condition: stats => stats.score >= 200 },\n  { id: "cps_5", text: "5 &#1082;&#1083;&#1080;&#1082;&#1086;&#1074;/&#1089;&#1077;&#1082", condition: stats => stats.maxCPS >= 5 },\n  { id: "cps_10", text: "10 &#1082;&#1083;&#1080;&#1082;&#1086;&#1074;/&#1089;&#1077;&#1082", condition: stats => stats.maxCPS >= 10 }\n];
 
 const playSound = (src) => {
   const audio = new Audio(src);
@@ -263,7 +257,7 @@ function App() {
           setRageEffect(true);
           addPoints(100);
           playSound('/fanfare.mp3');
-          setBoomText('Дикость!');
+          setBoomText('&#1044;&#1080;&#1082;&#1086;&#1089;&#1090;&#1100;!');
 
           let i = 0;
           const interval = setInterval(() => {
@@ -344,12 +338,12 @@ function App() {
     <div className="container">
       {!selectedGame ? (
         <div className="start">
-          <h2>�������� ����</h2>
+          <h2>&#1042;&#1099;&#1073;&#1086;&#1088; &#1080;&#1075;&#1088;&#1099;</h2>
           <div style={{ marginBottom: '0.5rem' }}>
-            ���: <input value={name} onChange={e => setName(e.target.value)} />
+            &#1048;&#1084;&#1103;: <input value={name} onChange={e => setName(e.target.value)} />
           </div>
           <div className="game-choices">
-            <button className="game-card" onClick={() => setSelectedGame('clicker')}>Кликер</button>
+            <button className="game-card" onClick={() => setSelectedGame('clicker')}>&#1050;&#1083;&#1080;&#1082;&#1077;&#1088;</button>
             <button className="game-card" onClick={() => setSelectedGame('match3')}>Match3</button>
             <button className="game-card" onClick={() => setSelectedGame('longcat')}>Longcat</button>
           </div>
@@ -357,14 +351,14 @@ function App() {
       ) : selectedGame === 'match3' ? (
         <div>
           <div style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
-            <button onClick={resetToSelector}>Назад к выбору игры</button>
+            <button onClick={resetToSelector}>&#1053;&#1072;&#1079;&#1072;&#1076; &#1082; &#1074;&#1099;&#1073;&#1086;&#1088;&#1091; &#1080;&#1075;&#1088;&#1099;</button>
           </div>
           <Match3 />
         </div>
       ) : selectedGame === 'longcat' ? (
         <div>
           <div style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
-            <button onClick={resetToSelector}>Назад к выбору игры</button>
+            <button onClick={resetToSelector}>&#1053;&#1072;&#1079;&#1072;&#1076; &#1082; &#1074;&#1099;&#1073;&#1086;&#1088;&#1091; &#1080;&#1075;&#1088;&#1099;</button>
           </div>
           <LongcatGame />
         </div>
@@ -372,9 +366,9 @@ function App() {
         <div className="game-wrapper">
         <div className="game" ref={gameRef}>
           <div style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
-            <button onClick={resetToSelector}>Назад к выбору игры</button>
+            <button onClick={resetToSelector}>&#1053;&#1072;&#1079;&#1072;&#1076; &#1082; &#1074;&#1099;&#1073;&#1086;&#1088;&#1091; &#1080;&#1075;&#1088;&#1099;</button>
           </div>
-          <h1>Добро пожаловать, {name}!</h1>
+          <h1>&#1044;&#1086;&#1073;&#1088;&#1086; &#1087;&#1086;&#1078;&#1072;&#1083;&#1086;&#1074;&#1072;&#1090;&#1100;, {name}!</h1>
           <div
             className="target"
             style={{
@@ -409,20 +403,20 @@ function App() {
               <div className="zzz-bubble">Zzz...</div>
             )}
           </div>
-          <div>Очки: {score}</div>
-          <div>Макс CPS: {maxCPS}</div>
+          <div>&#1054;&#1095;&#1082;&#1080;: {score}</div>
+          <div>&#1052;&#1072;&#1082;&#1089; CPS: {maxCPS}</div>
 
-          <div className="achievements">`n            <h3>Достижения</h3>
+          <div className="achievements">`n            <h3>&#1044;&#1086;&#1089;&#1090;&#1080;&#1078;&#1077;&#1085;&#1080;&#1103;</h3>
             <ul>
               {achievementsList.map(ach => (
-                <li key={ach.id}>{unlocked.has(ach.id) ? '?' : '??'} {ach.text}</li>
+                <li key={ach.id}>{unlocked.has(ach.id) ? '?' : ''} {ach.text}</li>
               ))}
             </ul>
           </div>
 
-          <div className="leaderboard">`n            <h3>Таблица лидеров</h3>
+          <div className="leaderboard">`n            <h3>&#1058;&#1072;&#1073;&#1083;&#1080;&#1094;&#1072; &#1083;&#1080;&#1076;&#1077;&#1088;&#1086;&#1074;</h3>
             <table>
-              <thead>`n                <tr><th>#</th><th>Имя</th><th>Очки</th></tr>`n              </thead>
+              <thead>`n                <tr><th>#</th><th>&#1048;&#1084;&#1103;</th><th>&#1054;&#1095;&#1082;&#1080;</th></tr>`n              </thead>
               <tbody>
                 {leaderboard.map((e, i) => (
                   <tr key={i}><td>{i + 1}</td><td>{e.name}</td><td>{e.score}</td></tr>
@@ -431,12 +425,12 @@ function App() {
             </table>
           </div>
 
-          <button onClick={submitScore} disabled={score === 0}>Отправить результат</button>
+          <button onClick={submitScore} disabled={score === 0}>&#1054;&#1090;&#1087;&#1088;&#1072;&#1074;&#1080;&#1090;&#1100; &#1088;&#1077;&#1079;&#1091;&#1083;&#1100;&#1090;&#1072;&#1090;</button>
           </div>
           <div className="side-panel">
-            <div>Монеты: {coins}</div>
-            <div>Автокликеры: {autoClickers}</div>
-            <button onClick={buyClicker} disabled={coins < clickerCost}>Купить кликер ({clickerCost})</button>
+            <div>&#1052;&#1086;&#1085;&#1077;&#1090;&#1099;: {coins}</div>
+            <div>&#1040;&#1074;&#1090;&#1086;&#1082;&#1083;&#1080;&#1082;&#1077;&#1088;&#1099;: {autoClickers}</div>
+            <button onClick={buyClicker} disabled={coins < clickerCost}>&#1050;&#1091;&#1087;&#1080;&#1090;&#1100; &#1082;&#1083;&#1080;&#1082;&#1077;&#1088; ({clickerCost})</button>
           </div>
         </div>
       )}
@@ -445,6 +439,13 @@ function App() {
 }
 
 export default App;
+
+
+
+
+
+
+
 
 
 
