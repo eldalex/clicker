@@ -1,4 +1,4 @@
 ---
 nginx_package: nginx
-nginx_conf_path: /etc/nginx/sites-available/{{ domain }}.conf
+nginx_conf_path: /etc/nginx/conf.d/{{ domain }}.conf
 nginx_conf_src: nginx.conf.j2

@@ -1,0 +1,52 @@
+﻿---
+
+- name: Install Nginx
+  apt:
+    name: "{{ nginx_package }}"
+    state: present
+    update_cache: yes
+
+- name: Deploy main nginx.conf with proper includes
+  template:
+    src: nginx-main.conf.j2
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload nginx
+
+- name: Remove default site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Ensure ACME webroot exists
+  file:
+    path: /var/www/letsencrypt/.well-known/acme-challenge
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'
+
+- name: Deploy vhost for {{ domain }}
+  template:
+    src: "{{ nginx_conf_src }}"
+    dest: "{{ nginx_conf_path }}"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload nginx
+
+- name: Enable vhost symlink
+  file:
+    src: "{{ nginx_conf_path }}"
+    dest: "/etc/nginx/sites-enabled/{{ domain }}.conf"
+    state: link
+  notify: Reload nginx
+
+- name: Validate nginx configuration
+  command: nginx -t
+  register: nginx_test
+  changed_when: false
+  failed_when: nginx_test.rc != 0
+
