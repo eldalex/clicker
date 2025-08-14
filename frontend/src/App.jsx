@@ -412,7 +412,8 @@ function App() {
           <div>&#1054;&#1095;&#1082;&#1080;: {score}</div>
           <div>&#1052;&#1072;&#1082;&#1089; CPS: {maxCPS}</div>
 
-          <div className="achievements">`n            <h3>&#1044;&#1086;&#1089;&#1090;&#1080;&#1078;&#1077;&#1085;&#1080;&#1103;</h3>
+          <div className="achievements">
+            <h3>&#1044;&#1086;&#1089;&#1090;&#1080;&#1078;&#1077;&#1085;&#1080;&#1103;</h3>
             <ul>
               {achievementsList.map(ach => (
                 <li key={ach.id}>{unlocked.has(ach.id) ? '?' : ''} {ach.text}</li>
@@ -420,9 +421,12 @@ function App() {
             </ul>
           </div>
 
-          <div className="leaderboard">`n            <h3>&#1058;&#1072;&#1073;&#1083;&#1080;&#1094;&#1072; &#1083;&#1080;&#1076;&#1077;&#1088;&#1086;&#1074;</h3>
+          <div className="leaderboard">
+            <h3>&#1058;&#1072;&#1073;&#1083;&#1080;&#1094;&#1072; &#1083;&#1080;&#1076;&#1077;&#1088;&#1086;&#1074;</h3>
             <table>
-              <thead>`n                <tr><th>#</th><th>&#1048;&#1084;&#1103;</th><th>&#1054;&#1095;&#1082;&#1080;</th></tr>`n              </thead>
+              <thead>
+                <tr><th>#</th><th>&#1048;&#1084;&#1103;</th><th>&#1054;&#1095;&#1082;&#1080;</th></tr>
+              </thead>
               <tbody>
                 {leaderboard.map((e, i) => (
                   <tr key={i}><td>{i + 1}</td><td>{e.name}</td><td>{e.score}</td></tr>
