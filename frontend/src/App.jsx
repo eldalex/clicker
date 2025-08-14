@@ -1,4 +1,4 @@
-// frontend/src/App.jsx
+п»ї// frontend/src/App.jsx
 import React, { useState, useRef, useEffect } from 'react';
 import Match3 from './Match3';
 import LongcatGame from './games/longcat/LongcatGame';
@@ -12,11 +12,11 @@ const catImages = [
 ];
 
 const achievementsList = [
-  { id: 'click_1', text: 'Первый мяу!', condition: stats => stats.score >= 1 },
-  { id: 'click_100', text: '100 мяу!', condition: stats => stats.score >= 100 },
-  { id: 'click_200', text: '200 мяу!', condition: stats => stats.score >= 200 },
-  { id: 'cps_5', text: '5 кликов/сек', condition: stats => stats.maxCPS >= 5 },
-  { id: 'cps_10', text: '10 кликов/сек', condition: stats => stats.maxCPS >= 10 }
+  { id: 'click_1', text: 'пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ!', condition: stats => stats.score >= 1 },
+  { id: 'click_100', text: '100 пїЅпїЅпїЅ!', condition: stats => stats.score >= 100 },
+  { id: 'click_200', text: '200 пїЅпїЅпїЅ!', condition: stats => stats.score >= 200 },
+  { id: 'cps_5', text: '5 пїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅ', condition: stats => stats.maxCPS >= 5 },
+  { id: 'cps_10', text: '10 пїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅ', condition: stats => stats.maxCPS >= 10 }
 ];
 
 const playSound = (src) => {
@@ -63,7 +63,7 @@ function App() {
     } catch (_) {}
   }, []);
 
-  // Авто-старт для кликера при выборе и наличии имени
+  // пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
   useEffect(() => {
     if (selectedGame === 'clicker' && name.trim() && !started) {
       startGame();
@@ -263,7 +263,7 @@ function App() {
           setRageEffect(true);
           addPoints(100);
           playSound('/fanfare.mp3');
-          setBoomText('?? ЯРОСТЬ!');
+          setBoomText('?? пїЅпїЅпїЅпїЅпїЅпїЅ!');
 
           let i = 0;
           const interval = setInterval(() => {
@@ -338,33 +338,33 @@ function App() {
 
   const clickerCost = 100 * Math.pow(2, autoClickers);
 
-  // Имя вводится на стартовой странице (без промежуточного экрана)
+  // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ)
 
   return (
     <div className="container">
       {!selectedGame ? (
         <div className="start">
-          <h2>Выберите игру</h2>
+          <h2>пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ</h2>
           <div style={{ marginBottom: '0.5rem' }}>
-            Имя: <input value={name} onChange={e => setName(e.target.value)} />
+            пїЅпїЅпїЅ: <input value={name} onChange={e => setName(e.target.value)} />
           </div>
           <div className="game-choices">
-            <button className="game-card" onClick={() => setSelectedGame('clicker')}>?? Кликер</button>
-            <button className="game-card" onClick={() => setSelectedGame('match3')}>?? Три в ряд</button>
+            <button className="game-card" onClick={() => setSelectedGame('clicker')}>?? пїЅпїЅпїЅпїЅпїЅпїЅ</button>
+            <button className="game-card" onClick={() => setSelectedGame('match3')}>?? пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ</button>
             <button className="game-card" onClick={() => setSelectedGame('longcat')}>?? Longcat</button>
           </div>
         </div>
       ) : selectedGame === 'match3' ? (
         <div>
           <div style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
-            <button onClick={resetToSelector}>< Назад к выбору</button>
+            <button onClick={resetToSelector}>РќР°Р·Р°Рґ Рє РІС‹Р±РѕСЂСѓ РёРіСЂС‹</button>
           </div>
           <Match3 />
         </div>
       ) : selectedGame === 'longcat' ? (
         <div>
           <div style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
-            <button onClick={resetToSelector}>< Назад к выбору</button>
+            <button onClick={resetToSelector}>РќР°Р·Р°Рґ Рє РІС‹Р±РѕСЂСѓ РёРіСЂС‹</button>
           </div>
           <LongcatGame />
         </div>
@@ -372,9 +372,9 @@ function App() {
         <div className="game-wrapper">
         <div className="game" ref={gameRef}>
           <div style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
-            <button onClick={resetToSelector}>< Назад к выбору</button>
+            <button onClick={resetToSelector}>РќР°Р·Р°Рґ Рє РІС‹Р±РѕСЂСѓ РёРіСЂС‹</button>
           </div>
-          <h1>Привет, {name}!</h1>
+          <h1>пїЅпїЅпїЅпїЅпїЅпїЅ, {name}!</h1>
           <div
             className="target"
             style={{
@@ -402,18 +402,18 @@ function App() {
                 key={c.id}
                 className="bonus-click"
                 style={{ left: `${50 + c.x}px`, top: `${50 + c.y}px` }}>
-                +1 клик
+                +1 пїЅпїЅпїЅпїЅ
               </div>
             ))}
             {calmEffect && (
               <div className="zzz-bubble">Zzz...</div>
             )}
           </div>
-          <div>Очки: {score}</div>
-          <div>Макс CPS: {maxCPS}</div>
+          <div>пїЅпїЅпїЅпїЅ: {score}</div>
+          <div>пїЅпїЅпїЅпїЅ CPS: {maxCPS}</div>
 
           <div className="achievements">
-            <h3>Достижения</h3>
+            <h3>пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ</h3>
             <ul>
               {achievementsList.map(ach => (
                 <li key={ach.id}>{unlocked.has(ach.id) ? '?' : '??'} {ach.text}</li>
@@ -422,10 +422,10 @@ function App() {
           </div>
 
           <div className="leaderboard">
-            <h3>Таблица лидеров</h3>
+            <h3>пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ</h3>
             <table>
               <thead>
-                <tr><th>#</th><th>Имя</th><th>Очки</th></tr>
+                <tr><th>#</th><th>пїЅпїЅпїЅ</th><th>пїЅпїЅпїЅпїЅ</th></tr>
               </thead>
               <tbody>
                 {leaderboard.map((e, i) => (
@@ -435,13 +435,13 @@ function App() {
             </table>
           </div>
 
-          <button onClick={submitScore} disabled={score === 0}>Отправить результат</button>
+          <button onClick={submitScore} disabled={score === 0}>пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ</button>
           </div>
           <div className="side-panel">
-            <div>Клик-койны: {coins}</div>
-            <div>Автокликеров: {autoClickers}</div>
+            <div>пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ: {coins}</div>
+            <div>пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: {autoClickers}</div>
             <button onClick={buyClicker} disabled={coins < clickerCost}>
-              Купить кликер ({clickerCost})
+              пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ ({clickerCost})
             </button>
           </div>
         </div>
@@ -451,4 +451,5 @@ function App() {
 }
 
 export default App;
+
 
