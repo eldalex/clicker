@@ -85,7 +85,7 @@ function refill(grid) {
 
 const sleep = (ms) => new Promise(res => setTimeout(res, ms));
 
-export default function Match3() {
+export default function Match3({ playerName }) {
   const [grid, setGrid] = useState(() => generateInitialGrid());
   const [selected, setSelected] = useState(null); // {r,c}
   const [score, setScore] = useState(0);
@@ -93,7 +93,6 @@ export default function Match3() {
   const [clearingIds, setClearingIds] = useState(new Set());
 
   // Saving/leaderboard state (per-game: match3)
-  const [player, setPlayer] = useState('');
   const [leaderboard, setLeaderboard] = useState([]);
   const [bestSaved, setBestSaved] = useState(0);
   const saveTimerRef = useRef(null);
@@ -145,17 +144,10 @@ export default function Match3() {
     };
   }, []);
 
-  // Load player name from localStorage and leaderboard
-  React.useEffect(() => {
-    try {
-      const saved = localStorage.getItem('player_name') || localStorage.getItem('playerName');
-      if (saved && typeof saved === 'string') setPlayer(saved);
-    } catch (_) {}
-  }, []);
-
   // Fetch current saved score once to initialize bestSaved
   React.useEffect(() => {
-    const user = (player || '').trim();
+    const user = (playerName || '').trim();
+    setBestSaved(0);
     if (!user) return;
     (async () => {
       try {
@@ -164,7 +156,7 @@ export default function Match3() {
         if (typeof data?.score === 'number') setBestSaved(Math.max(0, data.score));
       } catch (_) {}
     })();
-  }, [player]);
+  }, [playerName]);
 
   const fetchLeaderboard = React.useCallback(async () => {
     try {
@@ -265,7 +257,7 @@ export default function Match3() {
 
   // Auto-save best score with debounce and token handling
   React.useEffect(() => {
-    const user = (player || '').trim();
+    const user = (playerName || '').trim();
     if (!user) return; // no name: do not save
     if (score <= bestSaved) return; // nothing better to save
 
@@ -302,7 +294,7 @@ export default function Match3() {
     return () => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
-  }, [score, player, bestSaved]);
+  }, [score, playerName, bestSaved]);
 
   const gems = useMemo(() => {
     const list = [];
@@ -323,7 +315,7 @@ export default function Match3() {
         <div>Очки: {score}</div>
         <button onClick={reset} disabled={busy}>Сброс</button>
       </div>
-      {!player?.trim() ? (
+      {!playerName?.trim() ? (
         <div className="match3-info" style={{ color: '#a55', fontSize: '0.95rem' }}>
           Укажите имя на стартовом экране, чтобы сохранять рекорды.
         </div>
