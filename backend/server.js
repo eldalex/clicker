@@ -29,6 +29,8 @@ CREATE TABLE IF NOT EXISTS scores (
   user_id INTEGER NOT NULL,
   game_id TEXT NOT NULL,
   score INTEGER NOT NULL,
+  coins INTEGER,
+  clickers INTEGER,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   version INTEGER NOT NULL DEFAULT 0,
   FOREIGN KEY (user_id) REFERENCES users(id),
@@ -36,20 +38,33 @@ CREATE TABLE IF NOT EXISTS scores (
 );
 `);
 
+// Try to add new columns for coins and clickers if DB was created earlier
+try { db.exec('ALTER TABLE scores ADD COLUMN coins INTEGER'); } catch (e) {}
+try { db.exec('ALTER TABLE scores ADD COLUMN clickers INTEGER'); } catch (e) {}
+
 const stmtInsertUser = db.prepare('INSERT OR IGNORE INTO users(name) VALUES (?)');
 const stmtGetUser = db.prepare('SELECT id FROM users WHERE name = ?');
 const stmtGetScore = db.prepare(
-  `SELECT s.score, s.version FROM scores s JOIN users u ON s.user_id = u.id
+  `SELECT s.score, s.version, COALESCE(s.coins, 0) AS coins, COALESCE(s.clickers, 0) AS clickers
+   FROM scores s JOIN users u ON s.user_id = u.id
    WHERE u.name = ? AND s.game_id = ?`
 );
-const stmtUpsertScore = db.prepare(
-  `INSERT INTO scores(user_id, game_id, score, version)
-   VALUES (?, ?, ?, 0)
-   ON CONFLICT(user_id, game_id)
-   DO UPDATE SET
-     score = CASE WHEN excluded.score > scores.score THEN excluded.score ELSE scores.score END,
-     version = CASE WHEN excluded.score > scores.score THEN scores.version + 1 ELSE scores.version END,
-     updated_at = CASE WHEN excluded.score > scores.score THEN CURRENT_TIMESTAMP ELSE updated_at END`
+const stmtGetScoreByUserId = db.prepare(
+  `SELECT id, score, COALESCE(coins, 0) AS coins, COALESCE(clickers, 0) AS clickers
+   FROM scores WHERE user_id = ? AND game_id = ?`
+);
+const stmtInsertScore = db.prepare(
+  `INSERT INTO scores(user_id, game_id, score, coins, clickers, version)
+   VALUES (?, ?, ?, ?, ?, 0)`
+);
+const stmtUpdateScore = db.prepare(
+  `UPDATE scores SET
+     score = CASE WHEN ? > score THEN ? ELSE score END,
+     version = CASE WHEN ? > score THEN version + 1 ELSE version END,
+     updated_at = CASE WHEN ? > score THEN CURRENT_TIMESTAMP ELSE updated_at END,
+     coins = COALESCE(?, coins),
+     clickers = COALESCE(?, clickers)
+   WHERE user_id = ? AND game_id = ?`
 );
 const stmtTopScoresByGame = db.prepare(
   `SELECT u.name AS name, s.score AS score
@@ -89,13 +104,19 @@ app.get('/api/score', (req, res) => {
   // Ensure user exists
   stmtInsertUser.run(user);
   const row = stmtGetScore.get(user, game);
-  res.json({ score: row ? row.score : null, version: row ? row.version : 0, load_token: token });
+  res.json({
+    score: row ? row.score : null,
+    coins: row ? row.coins : 0,
+    clickers: row ? row.clickers : 0,
+    version: row ? row.version : 0,
+    load_token: token
+  });
 });
 
 // POST save score with required load_token
 // Body: { user, game, score, load_token }
 app.post('/api/score', (req, res) => {
-  const { user, game = 'clicker', score, load_token } = req.body || {};
+  const { user, game = 'clicker', score, load_token, coins, autoClickers, clickers } = req.body || {};
   if (typeof user !== 'string' || !user.trim() || typeof score !== 'number') {
     return res.status(400).json({ error: 'Invalid request' });
   }
@@ -107,7 +128,15 @@ app.post('/api/score', (req, res) => {
   // Upsert
   stmtInsertUser.run(user);
   const u = stmtGetUser.get(user);
-  stmtUpsertScore.run(u.id, game, Math.floor(score));
+  const coinsVal = (typeof coins === 'number' && Number.isFinite(coins)) ? Math.floor(coins) : null;
+  const clickersValInput = (typeof autoClickers === 'number' && Number.isFinite(autoClickers)) ? Math.floor(autoClickers)
+                       : (typeof clickers === 'number' && Number.isFinite(clickers)) ? Math.floor(clickers) : null;
+  const existing = stmtGetScoreByUserId.get(u.id, game);
+  if (!existing) {
+    stmtInsertScore.run(u.id, game, Math.floor(score), coinsVal ?? 0, clickersValInput ?? 0);
+  } else {
+    stmtUpdateScore.run(Math.floor(score), Math.floor(score), Math.floor(score), Math.floor(score), coinsVal, clickersValInput, u.id, game);
+  }
   // one-time token
   loadTokens.delete(tokenKey(user, game));
 

@@ -44,6 +44,7 @@ export default function ClickerGame({ name, onBack }) {
   const [targetPos, setTargetPos] = useState({ x: 0, y: 0 });
   const [imageIndex, setImageIndex] = useState(0);
   const [loadToken, setLoadToken] = useState(null);
+  const saveTimerRef = useRef(null);
 
   const gameRef = useRef(null);
   const targetMoveRef = useRef(null);
@@ -79,6 +80,8 @@ export default function ClickerGame({ name, onBack }) {
         .then(data => {
           if (data && data.load_token) setLoadToken(data.load_token);
           if (typeof data?.score === 'number') setScore(prev => Math.max(prev, data.score));
+          if (typeof data?.coins === 'number') setCoins(prev => Math.max(prev, data.coins));
+          if (typeof data?.clickers === 'number') setAutoClickers(prev => Math.max(prev, data.clickers));
         }).catch(() => {});
     }
   }, [name]);
@@ -229,27 +232,39 @@ export default function ClickerGame({ name, onBack }) {
     clearTimeout(targetHideRef.current);
   };
 
-  const submitScore = () => {
+  // Auto-save: debounce and save current snapshot (score, coins, autoClickers)
+  useEffect(() => {
     const user = (name || '').trim();
     if (!user) return;
-    fetch('/api/score', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user, game: 'clicker', score, load_token: loadToken })
-    })
-      .then(async res => {
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(async () => {
+      try {
+        const getRes = await fetch(`/api/score?user=${encodeURIComponent(user)}&game=clicker`);
+        const getData = await getRes.json();
+        const token = getData?.load_token;
+        if (!token) return;
+        const res = await fetch('/api/score', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user, game: 'clicker', score, coins, autoClickers, load_token: token })
+        });
         if (res.status === 409) {
-          try {
-            const fresh = await fetch(`/api/score?user=${encodeURIComponent(user)}&game=clicker`).then(r => r.json());
-            if (fresh && fresh.load_token) setLoadToken(fresh.load_token);
-          } catch (_) {}
-          throw new Error('Save rejected (load_token). Try again.');
+          // Try once more with a fresh token
+          const fresh = await fetch(`/api/score?user=${encodeURIComponent(user)}&game=clicker`).then(r => r.json()).catch(() => null);
+          const t2 = fresh?.load_token;
+          if (!t2) return;
+          await fetch('/api/score', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user, game: 'clicker', score, coins, autoClickers, load_token: t2 })
+          });
         }
-        return res.json();
-      })
-      .then(setLeaderboard)
-      .catch(() => {});
-  };
+        // refresh leaderboard quietly
+        fetch('/api/scores?game=clicker').then(r => r.json()).then(setLeaderboard).catch(() => {});
+      } catch (_) {}
+    }, 800);
+    return () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current); };
+  }, [name, score, coins, autoClickers]);
 
   const buyClicker = () => {
     const cost = 100 * Math.pow(2, autoClickers);
@@ -317,7 +332,7 @@ export default function ClickerGame({ name, onBack }) {
           </table>
         </div>
 
-        <button onClick={submitScore} disabled={score === 0}>{'\u041E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442'}</button>
+        {/* Автосохранение включено, кнопка больше не нужна */}
       </div>
       <div className="side-panel">
         <div>{'\u041C\u043E\u043D\u0435\u0442\u044B: '} {coins}</div>
