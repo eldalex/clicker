@@ -92,6 +92,12 @@ export default function Match3() {
   const [busy, setBusy] = useState(false);
   const [clearingIds, setClearingIds] = useState(new Set());
 
+  // Saving/leaderboard state (per-game: match3)
+  const [player, setPlayer] = useState('');
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [bestSaved, setBestSaved] = useState(0);
+  const saveTimerRef = useRef(null);
+
   const wrapRef = useRef(null);
   const [cell, setCell] = useState(DEFAULT_CELL);
 
@@ -138,6 +144,37 @@ export default function Match3() {
       window.removeEventListener('resize', calc);
     };
   }, []);
+
+  // Load player name from localStorage and leaderboard
+  React.useEffect(() => {
+    try {
+      const saved = localStorage.getItem('player_name') || localStorage.getItem('playerName');
+      if (saved && typeof saved === 'string') setPlayer(saved);
+    } catch (_) {}
+  }, []);
+
+  // Fetch current saved score once to initialize bestSaved
+  React.useEffect(() => {
+    const user = (player || '').trim();
+    if (!user) return;
+    (async () => {
+      try {
+        const res = await fetch(`/api/score?user=${encodeURIComponent(user)}&game=${encodeURIComponent('match3')}`);
+        const data = await res.json();
+        if (typeof data?.score === 'number') setBestSaved(Math.max(0, data.score));
+      } catch (_) {}
+    })();
+  }, [player]);
+
+  const fetchLeaderboard = React.useCallback(async () => {
+    try {
+      const res = await fetch(`/api/scores?game=${encodeURIComponent('match3')}`);
+      const data = await res.json();
+      if (Array.isArray(data)) setLeaderboard(data);
+    } catch (_) {}
+  }, []);
+
+  React.useEffect(() => { fetchLeaderboard(); }, [fetchLeaderboard]);
 
   const pos = (r, c) => ({
     transform: `translate(${c * (cell + GAP)}px, ${r * (cell + GAP)}px)`,
@@ -226,6 +263,47 @@ export default function Match3() {
     setGrid(generateInitialGrid());
   };
 
+  // Auto-save best score with debounce and token handling
+  React.useEffect(() => {
+    const user = (player || '').trim();
+    if (!user) return; // no name: do not save
+    if (score <= bestSaved) return; // nothing better to save
+
+    // debounce consecutive changes
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(async () => {
+      const doPostWithFreshToken = async () => {
+        // Always get a fresh token right before saving
+        const getRes = await fetch(`/api/score?user=${encodeURIComponent(user)}&game=${encodeURIComponent('match3')}`);
+        const getData = await getRes.json();
+        const token = getData?.load_token;
+        if (!token) throw new Error('no_token');
+        const res = await fetch('/api/score', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user, game: 'match3', score, load_token: token })
+        });
+        return res;
+      };
+      try {
+        let res = await doPostWithFreshToken();
+        if (res.status === 409) {
+          // Retry once with a fresh token
+          res = await doPostWithFreshToken();
+        }
+        if (!res.ok) return;
+        const top = await res.json();
+        setBestSaved(prev => Math.max(prev, score));
+        if (Array.isArray(top)) setLeaderboard(top);
+      } catch (_) {
+        // ignore transient errors
+      }
+    }, 800);
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+  }, [score, player, bestSaved]);
+
   const gems = useMemo(() => {
     const list = [];
     for (let r = 0; r < ROWS; r++) {
@@ -245,6 +323,11 @@ export default function Match3() {
         <div>Очки: {score}</div>
         <button onClick={reset} disabled={busy}>Сброс</button>
       </div>
+      {!player?.trim() ? (
+        <div className="match3-info" style={{ color: '#a55', fontSize: '0.95rem' }}>
+          Укажите имя на стартовом экране, чтобы сохранять рекорды.
+        </div>
+      ) : null}
       <div className="match3-board-wrap" ref={wrapRef}>
         <div className="match3-frame">
           <div className="match3-board" style={{ width: `${boardW}px`, height: `${boardH}px` }}>
@@ -269,6 +352,17 @@ export default function Match3() {
         })}
           </div>
         </div>
+      </div>
+      <div style={{ width: '100%', marginTop: '0.75rem' }}>
+        <h3 style={{ margin: '0.25rem 0' }}>Таблица лидеров (Match3)</h3>
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          {leaderboard.slice(0, 10).map((e, i) => (
+            <li key={e.name + i} style={{ display: 'flex', justifyContent: 'space-between', padding: '2px 0' }}>
+              <span>{i + 1}. {e.name}</span>
+              <span>{e.score}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
