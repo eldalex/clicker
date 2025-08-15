@@ -71,7 +71,7 @@ export default function NumberMergeGame({ playerName }) {
 
   return (
     <div className="nm-wrap">
-      <h2>Собирай‑по‑числам</h2>
+      <h2>2048</h2>
       <div className="nm-top">
         <div className="nm-info">
           <div>Очки: {score}</div>
