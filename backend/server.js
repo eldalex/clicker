@@ -70,7 +70,7 @@ const stmtUpdateScore = db.prepare(
    WHERE user_id = ? AND game_id = ?`
 );
 const stmtTopScoresByGame = db.prepare(
-  `SELECT u.name AS name, s.score AS score
+  `SELECT u.name AS name, s.score AS score, s.meta AS meta
    FROM scores s JOIN users u ON s.user_id = u.id
    WHERE s.game_id = ?
    ORDER BY s.score DESC, u.name ASC
