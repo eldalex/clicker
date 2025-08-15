@@ -638,7 +638,7 @@ function App() {
 
           </div>
 
-          <LongcatGame />
+          <LongcatGame playerName={name} />
 
         </div>
       ) : (
