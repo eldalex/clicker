@@ -463,7 +463,7 @@ function App() {
 
           addPoints(100);
 
-          setBoomText('&#1044;&#1080;&#1082;&#1086;&#1089;&#1090;&#1100;!');
+          setBoomText('Дикость!');
 
 
 
@@ -598,13 +598,13 @@ function App() {
       {!selectedGame ? (
 
         <div className="start">
-          <h2>&#1042;&#1099;&#1073;&#1086;&#1088; &#1080;&#1075;&#1088;&#1099;</h2>
+          <h2>Выбор игры</h2>
 
           <div style={{ marginBottom: '0.5rem' }}>
-            &#1048;&#1084;&#1103;: <input value={name} onChange={e => setName(e.target.value)} />
+            Имя: <input value={name} onChange={e => setName(e.target.value)} />
           </div>
           <div className="game-choices">
-            <button className="game-card" onClick={() => setSelectedGame('clicker')}>&#1050;&#1083;&#1080;&#1082;&#1077;&#1088;</button>
+            <button className="game-card" onClick={() => setSelectedGame('clicker')}>Кликер</button>
 
             <button className="game-card" onClick={() => setSelectedGame('match3')}>Match3</button>
 
@@ -620,7 +620,7 @@ function App() {
 
           <div style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
 
-            <button onClick={resetToSelector}>&#1053;&#1072;&#1079;&#1072;&#1076; &#1082; &#1074;&#1099;&#1073;&#1086;&#1088;&#1091; &#1080;&#1075;&#1088;&#1099;</button>
+            <button onClick={resetToSelector}>Назад к выбору игры</button>
 
           </div>
 
@@ -634,11 +634,11 @@ function App() {
 
           <div style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
 
-            <button onClick={resetToSelector}>&#1053;&#1072;&#1079;&#1072;&#1076; &#1082; &#1074;&#1099;&#1073;&#1086;&#1088;&#1091; &#1080;&#1075;&#1088;&#1099;</button>
+            <button onClick={resetToSelector}>Назад к выбору игры</button>
 
           </div>
 
-          <LongcatGame />
+          <LongcatGame playerName={name} />
 
         </div>
       ) : (

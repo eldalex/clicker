@@ -23,11 +23,10 @@ const STATUS = {
 // Ключ ячейки
 const keyOf = (x, y) => `${x},${y}`;
 
-export default function LongcatGame() {
+export default function LongcatGame({ playerName }) {
   // Параметры уровня
   const [levelIndex, setLevelIndex] = useState(0);
   const [levelsOpen, setLevelsOpen] = useState(false);
-  const [levelFilter, setLevelFilter] = useState('');
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)').matches : false);
   const level = LEVELS[levelIndex % LEVELS.length];
   const [gridWidth, setGridWidth] = useState(level.w);
@@ -54,6 +53,9 @@ export default function LongcatGame() {
   const [status, setStatus] = useState(STATUS.paused);
   const [tickMs, setTickMs] = useState(130); // 120..150 мс
   const [ticks, setTicks] = useState(0);
+  // Прогресс по уровням (индексы завершённых)
+  const [completedLevels, setCompletedLevels] = useState(() => new Set());
+  const saveTimerRef = useRef(null);
 
   // Учёт посещённых свободных клеток
   const wallSet = useMemo(() => new Set(walls.map(([x,y]) => keyOf(x,y))), [walls]);
@@ -124,6 +126,41 @@ export default function LongcatGame() {
   };
 
   useEffect(() => { setupLevel(levelIndex); /* eslint-disable-next-line */ }, [levelIndex]);
+
+  // Загрузка прогресса: сначала из localStorage (моментально), затем из БД (при наличии)
+  useEffect(() => {
+    const user = (playerName || '').trim();
+    const key = user ? `longcat_completed_${user}` : null;
+    let fromLocal = new Set();
+    if (key) {
+      try {
+        const raw = localStorage.getItem(key);
+        const arr = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(arr)) arr.forEach(v => { if (Number.isFinite(v)) fromLocal.add(Math.floor(v)); });
+      } catch (_) {}
+    }
+    setCompletedLevels(fromLocal);
+    if (!user) return;
+    fetch(`/api/score?user=${encodeURIComponent(user)}&game=longcat`)
+      .then(r => r.json())
+      .then(data => {
+        const list = Array.isArray(data?.meta?.completedLevels) ? data.meta.completedLevels : [];
+        const merged = new Set(fromLocal);
+        list.forEach(v => { if (Number.isFinite(v)) merged.add(Math.floor(v)); });
+        setCompletedLevels(merged);
+      })
+      .catch(() => {});
+  }, [playerName]);
+
+  // Сохраняем прогресс локально при изменении
+  useEffect(() => {
+    const user = (playerName || '').trim();
+    if (!user) return;
+    try {
+      const key = `longcat_completed_${user}`;
+      localStorage.setItem(key, JSON.stringify(Array.from(completedLevels).sort((a,b)=>a-b)));
+    } catch (_) {}
+  }, [completedLevels, playerName]);
 
   // Вспомогательные функции: проверка клетки и установка направления, когда движение остановлено
   const isValidCell = (x, y, bodySet) => {
@@ -222,6 +259,38 @@ export default function LongcatGame() {
       if (newVisitedSize >= totalFreeCells) {
         setStatus(STATUS.complete);
         setRunning(false);
+        // Отметим уровень завершённым и отправим прогресс
+        if (!completedLevels.has(levelIndex)) {
+          setCompletedLevels(prev => new Set(prev).add(levelIndex));
+          const user = (playerName || '').trim();
+          if (user) {
+            if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+            saveTimerRef.current = setTimeout(async () => {
+              try {
+                const getRes = await fetch(`/api/score?user=${encodeURIComponent(user)}&game=longcat`);
+                const getData = await getRes.json();
+                const token = getData?.load_token;
+                if (!token) return;
+                const unionSet = new Set([...completedLevels, levelIndex]);
+                try {
+                  localStorage.setItem(`longcat_completed_${user}`, JSON.stringify(Array.from(unionSet).sort((a,b)=>a-b)));
+                } catch (_) {}
+                const payload = {
+                  user,
+                  game: 'longcat',
+                  score: unionSet.size,
+                  load_token: token,
+                  progress: { completedLevels: Array.from(unionSet) }
+                };
+                await fetch('/api/score', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(payload)
+                });
+              } catch (_) {}
+            }, 500);
+          }
+        }
       } else {
         if (running) setStatus(STATUS.running); // поддерживаем статус
       }
@@ -272,6 +341,38 @@ export default function LongcatGame() {
       if (newVisitedSize >= totalFreeCells) {
         setStatus(STATUS.complete);
         setRunning(false);
+        // Mark level completed and persist progress
+        if (!completedLevels.has(levelIndex)) {
+          setCompletedLevels(prev => new Set(prev).add(levelIndex));
+          const user = (playerName || '').trim();
+          if (user) {
+            if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+            saveTimerRef.current = setTimeout(async () => {
+              try {
+                const getRes = await fetch(`/api/score?user=${encodeURIComponent(user)}&game=longcat`);
+                const getData = await getRes.json();
+                const token = getData?.load_token;
+                if (!token) return;
+                const unionSet = new Set([...completedLevels, levelIndex]);
+                try {
+                  localStorage.setItem(`longcat_completed_${user}`, JSON.stringify(Array.from(unionSet).sort((a,b)=>a-b)));
+                } catch (_) {}
+                const payload = {
+                  user,
+                  game: 'longcat',
+                  score: unionSet.size,
+                  load_token: token,
+                  progress: { completedLevels: Array.from(unionSet) }
+                };
+                await fetch('/api/score', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(payload)
+                });
+              } catch (_) {}
+            }, 500);
+          }
+        }
       } else {
         if (running) setStatus(STATUS.running);
       }
@@ -475,10 +576,15 @@ export default function LongcatGame() {
       <div className="longcat-header">
   <div className="longcat-controls">
     <button onClick={onRestart}>Restart</button>
-    {isMobile ? (
-      <button onClick={() => setLevelsOpen(true)} aria-expanded={levelsOpen} aria-controls="levels-drawer">Уровни ({levelIndex + 1}/{LEVELS.length})</button>
-    ) : (
-      <button onClick={onNextLevel} disabled={status !== STATUS.complete}>Next Level</button>
+    <button onClick={onNextLevel} disabled={status !== STATUS.complete}>Next Level</button>
+    {isMobile && (
+      <button className="hamburger-btn" type="button" onClick={() => setLevelsOpen(true)} aria-expanded={levelsOpen} aria-controls="levels-drawer" aria-label={`Уровни (${levelIndex + 1}/${LEVELS.length})`}>
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <rect className="bar" x="3" y="6" width="18" height="2" rx="1"/>
+          <rect className="bar" x="3" y="11" width="18" height="2" rx="1"/>
+          <rect className="bar" x="3" y="16" width="18" height="2" rx="1"/>
+        </svg>
+      </button>
     )}
   </div>
 </div>
@@ -542,7 +648,7 @@ export default function LongcatGame() {
             {Array.from({ length: LEVELS.length }).map((_, i) => (
               <button
                 key={i}
-                className={`level-btn ${i === levelIndex ? 'active' : ''}`}
+                className={`level-btn ${i === levelIndex ? 'active' : ''} ${completedLevels.has(i) ? 'completed' : ''}`}
                 onClick={() => onSelectLevel(i)}
                 aria-pressed={i === levelIndex}
                 title={`Уровень ${i + 1}`}
@@ -558,7 +664,7 @@ export default function LongcatGame() {
             {levelsOpen && <div className="levels-drawer-backdrop" onClick={() => setLevelsOpen(false)} />}
             <div
               id="levels-drawer"
-              className={`levels-drawer ${levelsOpen ? 'open' : ''}`}
+              className={`levels-drawer right ${levelsOpen ? 'open' : ''}`}
               role="dialog"
               aria-modal="true"
               aria-labelledby="levels-drawer-title"
@@ -567,39 +673,24 @@ export default function LongcatGame() {
             >
               <div className="levels-drawer-header">
                 <h3 id="levels-drawer-title" tabIndex={-1} ref={drawerTitleRef}>Выбор уровня</h3>
-                <button className="close-btn" onClick={() => setLevelsOpen(false)} aria-label="Фильтр уровней">✕</button>
-              </div>
-              <div className="levels-drawer-controls">
-                <input
-                  type="text"
-                  placeholder="Фильтр..."
-                  value={levelFilter}
-                  onChange={e => setLevelFilter(e.target.value)}
-                  aria-label="Фильтр уровней"
-                />
+                <button className="close-btn" onClick={() => setLevelsOpen(false)} aria-label="Закрыть">✕</button>
               </div>
               <div className="levels-drawer-content">
                 <div className="level-grid">
-                  {Array.from({ length: LEVELS.length }).map((_, i) => {
-                    const label = String(i + 1);
-                    if (levelFilter && !label.includes(levelFilter.trim())) return null;
-                    return (
-                      <button
-                        key={i}
-                        className={`level-btn ${i === levelIndex ? 'active' : ''}`}
-                        onClick={() => onSelectLevel(i)}
-                        aria-pressed={i === levelIndex}
-                        title={`Уровень ${i + 1}`}
-                      >
-                        {i + 1}
-                      </button>
-                    );
-                  })}
+                  {Array.from({ length: LEVELS.length }).map((_, i) => (
+                    <button
+                      key={i}
+                      className={`level-btn ${i === levelIndex ? 'active' : ''} ${completedLevels.has(i) ? 'completed' : ''}`}
+                      onClick={() => { onSelectLevel(i); setLevelsOpen(false); }}
+                      aria-pressed={i === levelIndex}
+                      title={`Уровень ${i + 1}`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
-
-            
           </>
         )}
       </div>

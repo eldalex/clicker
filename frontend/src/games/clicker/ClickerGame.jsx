@@ -9,11 +9,11 @@ const catImages = [
 ];
 
 const achievementsList = [
-  { id: 'click_1', text: '\u041F\u0435\u0440\u0432\u044B\u0439 \u043A\u043B\u0438\u043A!', condition: stats => stats.score >= 1 },
-  { id: 'click_100', text: '100 \u043E\u0447\u043A\u043E\u0432!', condition: stats => stats.score >= 100 },
-  { id: 'click_200', text: '200 \u043E\u0447\u043A\u043E\u0432!', condition: stats => stats.score >= 200 },
-  { id: 'cps_5', text: '5 \u043A\u043B\u0438\u043A\u043E\u0432/\u0441\u0435\u043A', condition: stats => stats.maxCPS >= 5 },
-  { id: 'cps_10', text: '10 \u043A\u043B\u0438\u043A\u043E\u0432/\u0441\u0435\u043A', condition: stats => stats.maxCPS >= 10 }
+  { id: 'click_1', text: 'Первый клик!', condition: stats => stats.score >= 1 },
+  { id: 'click_100', text: '100 очков!', condition: stats => stats.score >= 100 },
+  { id: 'click_200', text: '200 очков!', condition: stats => stats.score >= 200 },
+  { id: 'cps_5', text: '5 кликов/сек', condition: stats => stats.maxCPS >= 5 },
+  { id: 'cps_10', text: '10 кликов/сек', condition: stats => stats.maxCPS >= 10 }
 ];
 
 const playSoundNew = (audioRef) => {
@@ -44,6 +44,7 @@ export default function ClickerGame({ name, onBack }) {
   const [targetPos, setTargetPos] = useState({ x: 0, y: 0 });
   const [imageIndex, setImageIndex] = useState(0);
   const [loadToken, setLoadToken] = useState(null);
+  const saveTimerRef = useRef(null);
 
   const gameRef = useRef(null);
   const targetMoveRef = useRef(null);
@@ -79,6 +80,8 @@ export default function ClickerGame({ name, onBack }) {
         .then(data => {
           if (data && data.load_token) setLoadToken(data.load_token);
           if (typeof data?.score === 'number') setScore(prev => Math.max(prev, data.score));
+          if (typeof data?.coins === 'number') setCoins(prev => Math.max(prev, data.coins));
+          if (typeof data?.clickers === 'number') setAutoClickers(prev => Math.max(prev, data.clickers));
         }).catch(() => {});
     }
   }, [name]);
@@ -192,7 +195,7 @@ export default function ClickerGame({ name, onBack }) {
           setRageEffect(true);
           addPoints(100);
           playSoundNew(fanfareRef);
-          setBoomText('\u0414\u0438\u043A\u043E\u0441\u0442\u044C!');
+          setBoomText('Дикость!');
 
           let i = 0;
           const interval = setInterval(() => {
@@ -229,27 +232,39 @@ export default function ClickerGame({ name, onBack }) {
     clearTimeout(targetHideRef.current);
   };
 
-  const submitScore = () => {
+  // Auto-save: debounce and save current snapshot (score, coins, autoClickers)
+  useEffect(() => {
     const user = (name || '').trim();
     if (!user) return;
-    fetch('/api/score', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user, game: 'clicker', score, load_token: loadToken })
-    })
-      .then(async res => {
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(async () => {
+      try {
+        const getRes = await fetch(`/api/score?user=${encodeURIComponent(user)}&game=clicker`);
+        const getData = await getRes.json();
+        const token = getData?.load_token;
+        if (!token) return;
+        const res = await fetch('/api/score', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user, game: 'clicker', score, coins, autoClickers, load_token: token })
+        });
         if (res.status === 409) {
-          try {
-            const fresh = await fetch(`/api/score?user=${encodeURIComponent(user)}&game=clicker`).then(r => r.json());
-            if (fresh && fresh.load_token) setLoadToken(fresh.load_token);
-          } catch (_) {}
-          throw new Error('Save rejected (load_token). Try again.');
+          // Try once more with a fresh token
+          const fresh = await fetch(`/api/score?user=${encodeURIComponent(user)}&game=clicker`).then(r => r.json()).catch(() => null);
+          const t2 = fresh?.load_token;
+          if (!t2) return;
+          await fetch('/api/score', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user, game: 'clicker', score, coins, autoClickers, load_token: t2 })
+          });
         }
-        return res.json();
-      })
-      .then(setLeaderboard)
-      .catch(() => {});
-  };
+        // refresh leaderboard quietly
+        fetch('/api/scores?game=clicker').then(r => r.json()).then(setLeaderboard).catch(() => {});
+      } catch (_) {}
+    }, 800);
+    return () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current); };
+  }, [name, score, coins, autoClickers]);
 
   const buyClicker = () => {
     const cost = 100 * Math.pow(2, autoClickers);
@@ -268,9 +283,9 @@ export default function ClickerGame({ name, onBack }) {
         <audio ref={fanfareRef} src="/clicker/fanfare.mp3" preload="auto" />
         <audio ref={purrRef} src="/clicker/purr.mp3" preload="auto" />
         <div style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
-          <button onClick={onBack}>{'\u041D\u0430\u0437\u0430\u0434 \u043A \u0432\u044B\u0431\u043E\u0440\u0443 \u0438\u0433\u0440\u044B'}</button>
+          <button onClick={onBack}>Назад к выбору игры</button>
         </div>
-        <h1>{'\u0414\u043E\u0431\u0440\u043E \u043F\u043E\u0436\u0430\u043B\u043E\u0432\u0430\u0442\u044C, '} {name}!</h1>
+        <h1>Добро пожаловать, {name}!</h1>
         <div
           className="target"
           style={{ left: `${targetPos.x}px`, top: `${targetPos.y}px`, display: targetVisible ? 'block' : 'none' }}
@@ -286,16 +301,16 @@ export default function ClickerGame({ name, onBack }) {
           )}
           {bonusClicks.map(c => (
             <div key={c.id} className="bonus-click" style={{ left: `${50 + c.x}px`, top: `${50 + c.y}px` }}>
-              +1 {'\u0431\u043E\u043D\u0443\u0441'}
+              +1 бонус
             </div>
           ))}
           {calmEffect && <div className="zzz-bubble">Zzz...</div>}
         </div>
-        <div>{'\u041E\u0447\u043A\u0438: '} {score}</div>
-        <div>{'\u041C\u0430\u043A\u0441 CPS: '} {maxCPS}</div>
+        <div>Очки: {score}</div>
+        <div>Макс CPS: {maxCPS}</div>
 
         <div className="achievements">
-          <h3>{'\u0414\u043E\u0441\u0442\u0438\u0436\u0435\u043D\u0438\u044F'}</h3>
+          <h3>Достижения</h3>
           <ul>
             {achievementsList.map(ach => (
               <li key={ach.id}>{unlocked.has(ach.id) ? '✔' : ''} {ach.text}</li>
@@ -304,10 +319,10 @@ export default function ClickerGame({ name, onBack }) {
         </div>
 
         <div className="leaderboard">
-          <h3>{'\u0422\u0430\u0431\u043B\u0438\u0446\u0430 \u043B\u0438\u0434\u0435\u0440\u043E\u0432'}</h3>
+          <h3>Таблица лидеров</h3>
           <table>
             <thead>
-              <tr><th>#</th><th>{'\u0418\u043C\u044F'}</th><th>{'\u041E\u0447\u043A\u0438'}</th></tr>
+              <tr><th>#</th><th>Имя</th><th>Очки</th></tr>
             </thead>
             <tbody>
               {leaderboard.map((e, i) => (
@@ -317,12 +332,12 @@ export default function ClickerGame({ name, onBack }) {
           </table>
         </div>
 
-        <button onClick={submitScore} disabled={score === 0}>{'\u041E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442'}</button>
+        {/* Автосохранение включено, кнопка больше не нужна */}
       </div>
       <div className="side-panel">
-        <div>{'\u041C\u043E\u043D\u0435\u0442\u044B: '} {coins}</div>
-        <div>{'\u0410\u0432\u0442\u043E\u043A\u043B\u0438\u043A\u0435\u0440\u044B: '} {autoClickers}</div>
-        <button onClick={buyClicker} disabled={coins < clickerCost}>{'\u041A\u0443\u043F\u0438\u0442\u044C \u043A\u043B\u0438\u043A\u0435\u0440'} ({clickerCost})</button>
+        <div>Монеты: {coins}</div>
+        <div>Автокликеры: {autoClickers}</div>
+        <button onClick={buyClicker} disabled={coins < clickerCost}>Купить кликер ({clickerCost})</button>
       </div>
     </div>
   );
