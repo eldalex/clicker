@@ -1,0 +1,34 @@
+.nm-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.nm-top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center; }
+.nm-board {
+  display: grid;
+  grid-template-columns: repeat(4, 70px);
+  grid-template-rows: repeat(4, 70px);
+  gap: 6px;
+  background: #f7efe3;
+  padding: 10px;
+  border-radius: 16px;
+  box-shadow: inset 0 0 0 2px #e0a96d44;
+}
+.nm-cell {
+  width: 70px; height: 70px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  background: #f3e5d8; color: #5a3c2a; font-weight: 700;
+  box-shadow: inset 0 0 0 2px #ffffff66;
+  font-size: 18px;
+}
+.nm-cell.v2 { background: #fff8f0; }
+.nm-cell.v4 { background: #ffe7cc; }
+.nm-cell.v8 { background: #ffd7a1; }
+.nm-cell.v16 { background: #ffc77a; }
+.nm-cell.v32 { background: #ffb65a; }
+.nm-cell.v64 { background: #ffa53a; }
+.nm-cell.v128 { background: #ff9440; color: white; }
+.nm-cell.v256 { background: #ff7f35; color: white; }
+.nm-cell.v512 { background: #ff6a2a; color: white; }
+.nm-cell.v1024 { background: #ff551f; color: white; font-size: 16px; }
+.nm-cell.v2048 { background: #ff4014; color: white; font-size: 16px; }
+.nm-info { display: flex; gap: 8px; }
+.nm-status { font-weight: 700; }
+.nm-tutorial { font-size: 0.9rem; color: #666; text-align: center; max-width: 460px; }
+

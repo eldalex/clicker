@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Match3 from './games/match3/Match3';
+import NumberMergeGame from './games/number-merge/Game';
 import ClickerGame from './games/clicker/ClickerGame';
 import LongcatGame from './games/longcat/LongcatGame';
 
@@ -604,9 +605,10 @@ function App() {
             Имя: <input value={name} onChange={e => setName(e.target.value)} />
           </div>
           <div className="game-choices">
-            <button className="game-card" onClick={() => setSelectedGame('clicker')}>Кликер</button>
+            <button className="game-card" onClick={() => setSelectedGame('clicker')}>Clicker</button>
 
             <button className="game-card" onClick={() => setSelectedGame('match3')}>Match3</button>
+            <button className="game-card" onClick={() => setSelectedGame('number-merge')}>2048</button>
 
             <button className="game-card" onClick={() => setSelectedGame('longcat')}>Longcat</button>
 
@@ -640,6 +642,13 @@ function App() {
 
           <LongcatGame playerName={name} />
 
+        </div>
+      ) : selectedGame === 'number-merge' ? (
+        <div>
+          <div style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
+            <button onClick={resetToSelector}>Назад к выбору игры</button>
+          </div>
+          <NumberMergeGame playerName={name} />
         </div>
       ) : (
         <ClickerGame name={name} onBack={resetToSelector} />
