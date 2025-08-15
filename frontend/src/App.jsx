@@ -624,7 +624,7 @@ function App() {
 
           </div>
 
-          <Match3 />
+          <Match3 playerName={name} />
 
         </div>
 
@@ -649,4 +649,3 @@ function App() {
 }
 
 export default App;
-
