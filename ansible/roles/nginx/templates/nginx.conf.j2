@@ -1,7 +1,7 @@
 server {
     listen 80;
     listen [::]:80;
-    server_name click.l-alex.ru;
+    server_name {{ domain }};
 
     root /var/www/click/backend/build;
     index index.html;
