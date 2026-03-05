@@ -1,0 +1,41 @@
+[
+  {
+    "size": 5,
+    "fillAllCells": false,
+    "pairs": [
+      { "id": "fish",  "icon": "🐟", "color": "#4FC3F7", "a": [0,1], "b": [2,1] },
+      { "id": "cat",   "icon": "🐱", "color": "#FFB74D", "a": [1,3], "b": [3,3] },
+      { "id": "mouse", "icon": "🐭", "color": "#AED581", "a": [4,0], "b": [4,4] }
+    ]
+  },
+  {
+    "size": 6,
+    "fillAllCells": false,
+    "pairs": [
+      { "id": "sun",  "icon": "☀️", "color": "#FFD54F", "a": [0,0], "b": [5,5] },
+      { "id": "star", "icon": "⭐",  "color": "#9575CD", "a": [0,5], "b": [5,0] },
+      { "id": "leaf", "icon": "🍀", "color": "#66BB6A", "a": [1,1], "b": [4,4] },
+      { "id": "heart","icon": "❤️", "color": "#EF5350", "a": [2,5], "b": [3,2] }
+    ]
+  },
+  {
+    "size": 6,
+    "fillAllCells": true,
+    "pairs": [
+      { "id": "cat",   "icon": "🐱", "color": "#FFB74D", "a": [0,1], "b": [5,4] },
+      { "id": "fish",  "icon": "🐟", "color": "#4FC3F7", "a": [0,4], "b": [5,1] },
+      { "id": "mouse", "icon": "🐭", "color": "#AED581", "a": [1,0], "b": [4,5] },
+      { "id": "yarn",  "icon": "🧶", "color": "#4DD0E1", "a": [2,2], "b": [3,3] }
+    ]
+  },
+  {
+    "size": 7,
+    "fillAllCells": false,
+    "pairs": [
+      { "id": "moon",  "icon": "🌙", "color": "#90A4AE", "a": [0,6], "b": [6,0] },
+      { "id": "fire",  "icon": "🔥", "color": "#FF7043", "a": [0,0], "b": [6,6] },
+      { "id": "drop",  "icon": "💧", "color": "#4FC3F7", "a": [3,0], "b": [3,6] },
+      { "id": "tree",  "icon": "🌳", "color": "#81C784", "a": [2,2], "b": [4,4] }
+    ]
+  }
+]

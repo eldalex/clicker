@@ -2,9 +2,12 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Match3 from './games/match3/Match3';
+import MatchPathPuzzle from './games/match-path/MatchPathPuzzle';
 import NumberMergeGame from './games/number-merge/Game';
 import ClickerGame from './games/clicker/ClickerGame';
 import LongcatGame from './games/longcat/LongcatGame';
+import SnakeGame from './games/snake/SnakeGame';
+import KeyboardInvadersGame from './games/keyboard-invaders/KeyboardInvadersGame';
 
 
 
@@ -611,6 +614,15 @@ function App() {
             <button className="game-card" onClick={() => setSelectedGame('number-merge')}>2048</button>
 
             <button className="game-card" onClick={() => setSelectedGame('longcat')}>Longcat</button>
+            <button className="game-card" onClick={() => setSelectedGame('match-path')}>Match-Path</button>
+            <button className="game-card" onClick={() => setSelectedGame('snake')}>
+              <div>Snake</div>
+              <small>Классическая змейка</small>
+            </button>
+            <button className="game-card" onClick={() => setSelectedGame('keyboard-invaders')}>
+              <div>Keyboard Invaders</div>
+              <small>Тренажер печати</small>
+            </button>
 
           </div>
 
@@ -649,6 +661,27 @@ function App() {
             <button onClick={resetToSelector}>Назад к выбору игры</button>
           </div>
           <NumberMergeGame playerName={name} />
+        </div>
+      ) : selectedGame === 'match-path' ? (
+        <div>
+          <div style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
+            <button onClick={resetToSelector}>Назад к выбору игры</button>
+          </div>
+          <MatchPathPuzzle />
+        </div>
+      ) : selectedGame === 'snake' ? (
+        <div>
+          <div style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
+            <button onClick={resetToSelector}>Назад к выбору игры</button>
+          </div>
+          <SnakeGame />
+        </div>
+      ) : selectedGame === 'keyboard-invaders' ? (
+        <div>
+          <div style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
+            <button onClick={resetToSelector}>Назад к выбору игры</button>
+          </div>
+          <KeyboardInvadersGame />
         </div>
       ) : (
         <ClickerGame name={name} onBack={resetToSelector} />
