@@ -1,13 +1,16 @@
 ---
 - name: Reload systemd
   command: systemctl daemon-reload
+  when: not ansible_check_mode
 
 - name: Restart clicker backend
   systemd:
     name: "{{ service_name }}"
     state: restarted
+  when: not ansible_check_mode
 
 - name: Reload nginx
   service:
     name: nginx
     state: reloaded
+  when: not ansible_check_mode

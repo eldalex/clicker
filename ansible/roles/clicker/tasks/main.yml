@@ -17,13 +17,52 @@
     global: yes
     state: present
 
+- name: Check deploy path exists
+  stat:
+    path: "{{ deploy_path }}"
+  register: clicker_deploy_path_stat
+  when: not use_local_sources
+
+- name: Check existing git metadata
+  stat:
+    path: "{{ deploy_path }}/.git"
+  register: clicker_git_dir_stat
+  when: not use_local_sources
+
+- name: Check origin remote in existing repo
+  command: "git -C {{ deploy_path }} remote get-url origin"
+  register: clicker_git_origin_check
+  changed_when: false
+  failed_when: false
+  when:
+    - not use_local_sources
+    - clicker_git_dir_stat.stat.exists | default(false)
+
+- name: Decide if existing repo is valid
+  set_fact:
+    clicker_repo_valid: "{{ (clicker_git_dir_stat.stat.exists | default(false)) and (clicker_git_origin_check.rc | default(1) == 0) }}"
+  when: not use_local_sources
+
+- name: Reset invalid repo directory before clone (non-check mode)
+  file:
+    path: "{{ deploy_path }}"
+    state: absent
+  when:
+    - not use_local_sources
+    - not ansible_check_mode
+    - clicker_deploy_path_stat.stat.exists | default(false)
+    - not (clicker_repo_valid | default(false))
+  notify: Restart clicker backend
+
 - name: Клонировать репозиторий игры (если не используем локальные исходники)
   git:
     repo: "{{ git_repo }}"
     dest: "{{ deploy_path }}"
-    version: main
+    version: "{{ git_branch }}"
     force: yes
-  when: not use_local_sources
+  when:
+    - not use_local_sources
+    - (not ansible_check_mode) or (clicker_repo_valid | default(false))
   notify: Restart clicker backend
 
 - name: Синхронизировать локальные исходники на сервер (rsync)
@@ -99,4 +138,3 @@
     owner: www-data
     group: www-data
     mode: '0755'
-

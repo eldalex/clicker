@@ -1,6 +1,8 @@
 [Unit]
 Description=Trojan-Go Service
 After=network.target
+StartLimitIntervalSec=300
+StartLimitBurst=5
 
 [Service]
 Type=simple
@@ -9,6 +11,9 @@ Restart=on-failure
 RestartSec=5
 User=root
 Group=root
+LimitNOFILE=1048576
+TimeoutStopSec=10
+KillSignal=SIGTERM
 
 [Install]
 WantedBy=multi-user.target
