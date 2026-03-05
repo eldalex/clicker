@@ -1,0 +1,10 @@
+---
+- name: Reload systemd
+  command: systemctl daemon-reload
+  when: not ansible_check_mode
+
+- name: Restart xray
+  systemd:
+    name: xray
+    state: restarted
+  when: not ansible_check_mode

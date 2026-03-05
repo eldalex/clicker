@@ -5,4 +5,4 @@
     - { role: clicker, tags: ["clicker"] }
     - { role: nginx,   tags: ["nginx"] }
     - { role: letsencrypt, tags: ["letsencrypt"] }
-    - { role: trojan-go,  tags: ["trojan"] }
+    - { role: xray, tags: ["trojan", "xray"] }

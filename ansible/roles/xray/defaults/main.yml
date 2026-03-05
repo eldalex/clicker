@@ -1,0 +1,8 @@
+---
+xray_download_url: "https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip"
+xray_archive_path: "/tmp/xray-linux-64.zip"
+xray_unpack_dir: "/tmp/xray-install"
+xray_install_path: "/usr/local/bin/xray"
+xray_config_dir: "/etc/xray"
+xray_config_path: "{{ xray_config_dir }}/config.json"
+xray_service_path: "/etc/systemd/system/xray.service"
