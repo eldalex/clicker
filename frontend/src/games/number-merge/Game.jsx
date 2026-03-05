@@ -26,6 +26,11 @@ export default function NumberMergeGame({ playerName }) {
     const t = e.touches && e.touches[0];
     if (!t) return;
     touchRef.current = { x: t.clientX, y: t.clientY };
+    e.preventDefault();
+  };
+  const onTouchMove = (e) => {
+    if (!touchRef.current) return;
+    e.preventDefault();
   };
   const onTouchEnd = (e) => {
     if (!touchRef.current) return;
@@ -38,6 +43,7 @@ export default function NumberMergeGame({ playerName }) {
     if (Math.max(ax, ay) < 20) return;
     const dir = ax >= ay ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
     applyMove(dir);
+    e.preventDefault();
   };
 
   // fetch leaderboard on mount and after saves
@@ -86,8 +92,9 @@ export default function NumberMergeGame({ playerName }) {
         </div>
       )}
       <div
-        className="nm-board"
+        className="nm-board touch-game-surface"
         onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
         onTouchCancel={() => (touchRef.current = null)}
       >

@@ -230,3 +230,18 @@ button:disabled {
   padding: 1rem;
   font-size: 1.1rem;
 }
+.game-card small {
+  display: block;
+  margin-top: 0.22rem;
+  font-size: 0.78rem;
+  line-height: 1.2;
+  opacity: 0.9;
+}
+
+/* Shared helper for touch-driven game surfaces */
+.touch-game-surface {
+  touch-action: none;
+  overscroll-behavior: contain;
+  -webkit-user-select: none;
+  user-select: none;
+}

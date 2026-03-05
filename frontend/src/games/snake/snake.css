@@ -1,0 +1,38 @@
+.snake-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.snake-panel {
+  display: flex;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.snake-actions {
+  display: flex;
+  gap: 0.6rem;
+  width: min(420px, 100%);
+}
+
+.snake-actions button {
+  flex: 1;
+}
+
+.snake-hint {
+  color: #5f5447;
+  font-size: 0.95rem;
+}
+
+.snake-canvas {
+  width: min(92vw, 420px);
+  height: min(92vw, 420px);
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 2px #d0b291;
+  background: #f6efe2;
+  display: block;
+}

@@ -18,9 +18,10 @@
     url: "http://{{ domain }}/"
     return_content: no
   register: web_ready
-  until: web_ready.status in [200,403]
+  until: (web_ready.status | default(0)) in [200,403]
   retries: 5
   delay: 5
+  when: not ansible_check_mode
 
 - name: Проверить, есть ли уже сертификат для {{ domain }}
   stat:
@@ -31,6 +32,7 @@
   service:
     name: nginx
     state: reloaded
+  when: not ansible_check_mode
 
 - name: Получить новый сертификат через certbot (если его ещё нет)
   shell: >
@@ -38,12 +40,16 @@
     --email {{ cert_email }}
     --webroot -w /var/www/letsencrypt
     -d {{ domain }}
-  when: not cert_exists.stat.exists
+  when:
+    - not ansible_check_mode
+    - not cert_exists.stat.exists
   notify: Reload nginx
 
 - name: Прогнать обновление сертификатов (если уже есть)
   shell: certbot renew --quiet --deploy-hook "systemctl reload nginx"
-  when: cert_exists.stat.exists
+  when:
+    - not ansible_check_mode
+    - cert_exists.stat.exists
 
 - name: Создать Cron для автоматического продления сертификата
   cron:

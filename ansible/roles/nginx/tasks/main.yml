@@ -37,11 +37,17 @@
     mode: '0644'
   notify: Reload nginx
 
+- name: Check vhost file exists (for check mode)
+  stat:
+    path: "{{ nginx_conf_path }}"
+  register: nginx_vhost_stat
+
 - name: Enable vhost symlink
   file:
     src: "{{ nginx_conf_path }}"
     dest: "/etc/nginx/sites-enabled/{{ domain }}.conf"
     state: link
+  when: (not ansible_check_mode) or nginx_vhost_stat.stat.exists
   notify: Reload nginx
 
 - name: Validate nginx configuration

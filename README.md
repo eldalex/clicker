@@ -44,3 +44,29 @@ API: рекорды и токены загрузки
 Docker
 - Сборка: `docker build -t clicker .`
 - Запуск: `docker run -p 3000:3000 clicker`
+
+---
+
+Новые мини-игры
+- `Snake`
+  - Управление: стрелки или `WASD`
+  - `Space` — пауза
+  - Стены смертельны (выход за поле = поражение)
+  - В UI: `Start`, `Restart`, `Score`, `Level`, `Speed`
+- `Keyboard Invaders`
+  - Печатайте первую «живую» букву слева направо
+  - `P` — пауза
+  - Пробел (`Space`) считается обычным символом фразы
+  - Есть переключатель языка фраз: `EN`/`RU`
+  - В UI: `Start`, `Restart`, `Score`, `Round`, `Misses`, `Accuracy`, `Speed`
+
+Как открыть
+- На стартовом экране (выбор игры) появились две новые карточки:
+  - `Snake`
+  - `Keyboard Invaders`
+
+Тесты
+- Во фронтенде добавлены unit-тесты для логики:
+  - `frontend/src/games/snake/engine.test.js`
+  - `frontend/src/games/keyboard-invaders/engine.test.js`
+- Запуск: `cd frontend && npm test`
