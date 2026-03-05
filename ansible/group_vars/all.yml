@@ -4,6 +4,9 @@ git_repo: 'https://github.com/eldalex/clicker.git'
 deploy_path: '/var/www/click'
 deploy_build_dir: '{{ deploy_path }}/backend/build'
 trojan_password: 'Придумай твой пароль для авторизации в VPN'
+enable_vless: false
+vless_port: 8443
+vless_uuid: 'PUT_VLESS_UUID_HERE'
 # для SSH-входа по паролю
 ansible_user: root
 ansible_ssh_pass: 'пароль рута'

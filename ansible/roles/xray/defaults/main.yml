@@ -6,3 +6,6 @@ xray_install_path: "/usr/local/bin/xray"
 xray_config_dir: "/etc/xray"
 xray_config_path: "{{ xray_config_dir }}/config.json"
 xray_service_path: "/etc/systemd/system/xray.service"
+enable_vless: false
+vless_port: 8443
+vless_uuid: ""

@@ -70,6 +70,13 @@
     proto: tcp
   when: not ansible_check_mode
 
+- name: Open VLESS tcp port in UFW
+  ufw:
+    rule: allow
+    port: "{{ vless_port }}"
+    proto: tcp
+  when: not ansible_check_mode and enable_vless and (vless_uuid | length > 0)
+
 - name: Stop legacy trojan-go service if present
   systemd:
     name: trojan-go

@@ -32,6 +32,33 @@
         }
       }
     }
+{% if enable_vless and (vless_uuid | length > 0) %},
+    {
+      "listen": "0.0.0.0",
+      "port": {{ vless_port }},
+      "protocol": "vless",
+      "settings": {
+        "clients": [
+          {
+            "id": "{{ vless_uuid }}"
+          }
+        ],
+        "decryption": "none"
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "security": "tls",
+        "tlsSettings": {
+          "certificates": [
+            {
+              "certificateFile": "/etc/letsencrypt/live/{{ domain }}/fullchain.pem",
+              "keyFile": "/etc/letsencrypt/live/{{ domain }}/privkey.pem"
+            }
+          ]
+        }
+      }
+    }
+{% endif %}
   ],
   "outbounds": [
     {

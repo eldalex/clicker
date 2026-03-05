@@ -20,5 +20,8 @@ Variables
 
 - `domain`
 - `trojan_password`
+- `enable_vless` (по умолчанию `false`)
+- `vless_port` (по умолчанию `8443`)
+- `vless_uuid` (обязателен при `enable_vless: true`)
 
 Прочие параметры задаются в `defaults/main.yml`.
