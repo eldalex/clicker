@@ -9,3 +9,8 @@ xray_service_path: "/etc/systemd/system/xray.service"
 enable_vless: false
 vless_port: 8443
 vless_uuid: ""
+enable_vless_reality: false
+vless_reality_server_name: "www.cloudflare.com"
+vless_reality_dest: "www.cloudflare.com:443"
+vless_reality_private_key: ""
+vless_reality_short_id: ""

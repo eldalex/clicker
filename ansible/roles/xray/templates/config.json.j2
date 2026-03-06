@@ -41,13 +41,25 @@
       "settings": {
         "clients": [
           {
-            "id": "{{ vless_uuid }}"
+            "id": "{{ vless_uuid }}"{% if enable_vless_reality %},
+            "flow": "xtls-rprx-vision"{% endif %}
           }
         ],
         "decryption": "none"
       },
       "streamSettings": {
         "network": "tcp",
+{% if enable_vless_reality %}
+        "security": "reality",
+        "realitySettings": {
+          "show": false,
+          "dest": "{{ vless_reality_dest }}",
+          "xver": 0,
+          "serverNames": ["{{ vless_reality_server_name }}"],
+          "privateKey": "{{ vless_reality_private_key }}",
+          "shortIds": ["{{ vless_reality_short_id }}"]
+        }
+{% else %}
         "security": "tls",
         "tlsSettings": {
           "alpn": ["h2", "http/1.1"],
@@ -58,6 +70,7 @@
             }
           ]
         }
+{% endif %}
       }
     }
 {% endif %}

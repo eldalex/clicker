@@ -23,5 +23,10 @@ Variables
 - `enable_vless` (по умолчанию `false`)
 - `vless_port` (по умолчанию `8443`)
 - `vless_uuid` (обязателен при `enable_vless: true`)
+- `enable_vless_reality` (по умолчанию `false`)
+- `vless_reality_server_name` (например `www.cloudflare.com`)
+- `vless_reality_dest` (например `www.cloudflare.com:443`)
+- `vless_reality_private_key` (обязателен для Reality)
+- `vless_reality_short_id` (обязателен для Reality)
 
 Прочие параметры задаются в `defaults/main.yml`.

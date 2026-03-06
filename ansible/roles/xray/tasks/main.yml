@@ -47,6 +47,21 @@
     group: root
     mode: '0755'
 
+- name: Validate VLESS base settings
+  assert:
+    that:
+      - vless_uuid | length > 0
+  when: enable_vless
+
+- name: Validate VLESS Reality settings
+  assert:
+    that:
+      - vless_reality_private_key | length > 0
+      - vless_reality_short_id | length > 0
+      - vless_reality_server_name | length > 0
+      - vless_reality_dest | length > 0
+  when: enable_vless and enable_vless_reality
+
 - name: Deploy xray config
   template:
     src: config.json.j2
