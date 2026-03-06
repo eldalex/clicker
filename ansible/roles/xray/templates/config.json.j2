@@ -23,6 +23,7 @@
         "network": "tcp",
         "security": "tls",
         "tlsSettings": {
+          "alpn": ["h2", "http/1.1"],
           "certificates": [
             {
               "certificateFile": "/etc/letsencrypt/live/{{ domain }}/fullchain.pem",
@@ -49,6 +50,7 @@
         "network": "tcp",
         "security": "tls",
         "tlsSettings": {
+          "alpn": ["h2", "http/1.1"],
           "certificates": [
             {
               "certificateFile": "/etc/letsencrypt/live/{{ domain }}/fullchain.pem",
