@@ -4,3 +4,12 @@ frontend/node_modules
 restart.sh
 codex_prompt_longcat.md
 clicker_auth_records_prompt.md
+ansible/deploy-site.local.sh
+ansible/backup-client-state.local.sh
+ansible/restore-client-state.local.sh
+ansible/.client_state_backups/
+
+ansible/conf_for_clash.local.yml
+ansible/hiddify-vless.local.json
+ansible/hiddify-vless-reality.local.json
+backend/build/
