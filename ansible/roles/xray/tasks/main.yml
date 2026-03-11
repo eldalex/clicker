@@ -1,0 +1,108 @@
+---
+- name: Install dependency packages
+  apt:
+    name:
+      - unzip
+      - wget
+      - curl
+      - ca-certificates
+    state: present
+    update_cache: yes
+
+- name: Create temporary directory for xray archive
+  file:
+    path: "{{ xray_unpack_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Download xray archive
+  get_url:
+    url: "{{ xray_download_url }}"
+    dest: "{{ xray_archive_path }}"
+    mode: '0644'
+  when: not ansible_check_mode
+
+- name: Unpack xray archive
+  unarchive:
+    src: "{{ xray_archive_path }}"
+    dest: "{{ xray_unpack_dir }}"
+    remote_src: yes
+  when: not ansible_check_mode
+
+- name: Install xray binary
+  copy:
+    src: "{{ xray_unpack_dir }}/xray"
+    dest: "{{ xray_install_path }}"
+    remote_src: yes
+    mode: '0755'
+    owner: root
+    group: root
+  when: not ansible_check_mode
+
+- name: Ensure xray config directory exists
+  file:
+    path: "{{ xray_config_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Validate VLESS base settings
+  assert:
+    that:
+      - vless_uuid | length > 0
+  when: enable_vless
+
+- name: Validate VLESS Reality settings
+  assert:
+    that:
+      - vless_reality_private_key | length > 0
+      - vless_reality_short_id | length > 0
+      - vless_reality_server_name | length > 0
+      - vless_reality_dest | length > 0
+  when: enable_vless and enable_vless_reality
+
+- name: Deploy xray config
+  template:
+    src: config.json.j2
+    dest: "{{ xray_config_path }}"
+    mode: '0644'
+  notify: Restart xray
+
+- name: Deploy xray systemd unit
+  template:
+    src: xray.service.j2
+    dest: "{{ xray_service_path }}"
+    mode: '0644'
+  notify:
+    - Reload systemd
+    - Restart xray
+
+- name: Open tcp port 443 in UFW
+  ufw:
+    rule: allow
+    port: '443'
+    proto: tcp
+  when: not ansible_check_mode
+
+- name: Open VLESS tcp port in UFW
+  ufw:
+    rule: allow
+    port: "{{ vless_port }}"
+    proto: tcp
+  when: not ansible_check_mode and enable_vless and (vless_uuid | length > 0)
+
+- name: Stop legacy trojan-go service if present
+  systemd:
+    name: trojan-go
+    enabled: no
+    state: stopped
+  failed_when: false
+  when: not ansible_check_mode
+
+- name: Ensure xray service is enabled and started
+  systemd:
+    name: xray
+    enabled: yes
+    state: started
+  when: not ansible_check_mode

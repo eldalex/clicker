@@ -1,4 +1,4 @@
-﻿---
+---
 - name: Установить Certbot
   apt:
     name: certbot
@@ -18,7 +18,7 @@
     url: "http://{{ domain }}/"
     return_content: no
   register: web_ready
-  until: (web_ready.status | default(0)) in [200,403]
+  until: (web_ready.status | default(0)) in [200, 403]
   retries: 5
   delay: 5
   when: not ansible_check_mode
@@ -40,16 +40,12 @@
     --email {{ cert_email }}
     --webroot -w /var/www/letsencrypt
     -d {{ domain }}
-  when:
-    - not ansible_check_mode
-    - not cert_exists.stat.exists
   notify: Reload nginx
+  when: not ansible_check_mode and not cert_exists.stat.exists
 
 - name: Прогнать обновление сертификатов (если уже есть)
   shell: certbot renew --quiet --deploy-hook "systemctl reload nginx"
-  when:
-    - not ansible_check_mode
-    - cert_exists.stat.exists
+  when: not ansible_check_mode and cert_exists.stat.exists
 
 - name: Создать Cron для автоматического продления сертификата
   cron:

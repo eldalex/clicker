@@ -1,0 +1,16 @@
+---
+xray_download_url: "https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip"
+xray_archive_path: "/tmp/xray-linux-64.zip"
+xray_unpack_dir: "/tmp/xray-install"
+xray_install_path: "/usr/local/bin/xray"
+xray_config_dir: "/etc/xray"
+xray_config_path: "{{ xray_config_dir }}/config.json"
+xray_service_path: "/etc/systemd/system/xray.service"
+enable_vless: false
+vless_port: 8443
+vless_uuid: ""
+enable_vless_reality: false
+vless_reality_server_name: "www.cloudflare.com"
+vless_reality_dest: "www.cloudflare.com:443"
+vless_reality_private_key: ""
+vless_reality_short_id: ""

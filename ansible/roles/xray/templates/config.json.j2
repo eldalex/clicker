@@ -1,0 +1,89 @@
+{
+  "log": {
+    "loglevel": "warning"
+  },
+  "inbounds": [
+    {
+      "listen": "0.0.0.0",
+      "port": 443,
+      "protocol": "trojan",
+      "settings": {
+        "clients": [
+          {
+            "password": "{{ trojan_password }}"
+          }
+        ],
+        "fallbacks": [
+          {
+            "dest": "127.0.0.1:80"
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "security": "tls",
+        "tlsSettings": {
+          "alpn": ["h2", "http/1.1"],
+          "certificates": [
+            {
+              "certificateFile": "/etc/letsencrypt/live/{{ domain }}/fullchain.pem",
+              "keyFile": "/etc/letsencrypt/live/{{ domain }}/privkey.pem"
+            }
+          ]
+        }
+      }
+    }
+{% if enable_vless and (vless_uuid | length > 0) %},
+    {
+      "listen": "0.0.0.0",
+      "port": {{ vless_port }},
+      "protocol": "vless",
+      "settings": {
+        "clients": [
+          {
+            "id": "{{ vless_uuid }}"{% if enable_vless_reality %},
+            "flow": "xtls-rprx-vision"{% endif %}
+          }
+        ],
+        "decryption": "none"
+      },
+      "streamSettings": {
+        "network": "tcp",
+{% if enable_vless_reality %}
+        "security": "reality",
+        "realitySettings": {
+          "show": false,
+          "dest": "{{ vless_reality_dest }}",
+          "xver": 0,
+          "serverNames": ["{{ vless_reality_server_name }}"],
+          "privateKey": "{{ vless_reality_private_key }}",
+          "shortIds": ["{{ vless_reality_short_id }}"]
+        }
+{% else %}
+        "security": "tls",
+        "tlsSettings": {
+          "alpn": ["h2", "http/1.1"],
+          "certificates": [
+            {
+              "certificateFile": "/etc/letsencrypt/live/{{ domain }}/fullchain.pem",
+              "keyFile": "/etc/letsencrypt/live/{{ domain }}/privkey.pem"
+            }
+          ]
+        }
+{% endif %}
+      }
+    }
+{% endif %}
+  ],
+  "outbounds": [
+    {
+      "protocol": "freedom",
+      "settings": {}
+    },
+    {
+      "protocol": "blackhole",
+      "settings": {},
+      "tag": "blocked"
+    }
+  ]
+}
