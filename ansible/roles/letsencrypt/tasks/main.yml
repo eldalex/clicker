@@ -1,4 +1,4 @@
-﻿---
+---
 - name: Установить Certbot
   apt:
     name: certbot

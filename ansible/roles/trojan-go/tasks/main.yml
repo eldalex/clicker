@@ -13,12 +13,14 @@
     url: "{{ trojan_download_url }}"
     dest: "/tmp/trojan-go-{{ trojan_arch }}.zip"
     mode: '0644'
+  when: not ansible_check_mode
 
 - name: Распаковать архив trojan-go
   unarchive:
     src: "/tmp/trojan-go-{{ trojan_arch }}.zip"
     dest: "/tmp"
     remote_src: yes
+  when: not ansible_check_mode
 
 - name: Установить бинарь trojan-go
   copy:
@@ -28,6 +30,7 @@
     mode: '0755'
     owner: root
     group: root
+  when: not ansible_check_mode
 
 - name: Создать директорию для конфигурации
   file:
@@ -58,9 +61,11 @@
     rule: allow
     port: '443'
     proto: tcp
+  when: not ansible_check_mode
 
 - name: Убедиться, что trojan-go запущен и включен
   systemd:
     name: trojan-go
     enabled: yes
     state: started
+  when: not ansible_check_mode

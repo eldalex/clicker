@@ -589,7 +589,7 @@ export default function LongcatGame({ playerName }) {
   </div>
 </div>
 <div className="longcat-main">
-        <div className="longcat-board-frame"
+        <div className="longcat-board-frame touch-game-surface"
              onMouseDown={onPointerDown}
              onMouseMove={onPointerMove}
              onMouseUp={onPointerUp}
@@ -604,7 +604,7 @@ export default function LongcatGame({ playerName }) {
             {status === STATUS.over && <div className="badge lose">Game Over</div>}
           </div>
           <div
-            className="longcat-board"
+            className="longcat-board touch-game-surface"
             style={{ gridTemplateColumns: `repeat(${gridWidth}, var(--cell-size))`, gridTemplateRows: `repeat(${gridHeight}, var(--cell-size))` }}
             ref={boardRef}
           >
