@@ -13,3 +13,5 @@ ansible/conf_for_clash.local.yml
 ansible/hiddify-vless.local.json
 ansible/hiddify-vless-reality.local.json
 backend/build/
+diagnose_client.sh
+diagnose_server.sh
