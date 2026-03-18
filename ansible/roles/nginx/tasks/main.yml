@@ -42,11 +42,10 @@
     path: "{{ nginx_conf_path }}"
   register: nginx_vhost_stat
 
-- name: Enable vhost symlink
+- name: Remove duplicate vhost symlink from sites-enabled
   file:
-    src: "{{ nginx_conf_path }}"
     dest: "/etc/nginx/sites-enabled/{{ domain }}.conf"
-    state: link
+    state: absent
   when: (not ansible_check_mode) or nginx_vhost_stat.stat.exists
   notify: Reload nginx
 
