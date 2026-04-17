@@ -10,8 +10,17 @@ ansible/restore-client-state.local.sh
 ansible/.client_state_backups/
 
 ansible/conf_for_clash.local.yml
+ansible/streisand-trojan-test.local.json
+ansible/streisand-trojan-rules.local.json
+ansible/streisand-vless-reality-test.local.json
+ansible/streisand-vless-reality-rules.local.json
+ansible/hiddify-trojan.local.json
+ansible/hiddify-trojan-full-tunnel.local.json
 ansible/hiddify-vless.local.json
 ansible/hiddify-vless-reality.local.json
+ansible/hiddify-vless-reality-full-tunnel.local.json
 backend/build/
 diagnose_client.sh
 diagnose_server.sh
+openspec/
+.codex/
