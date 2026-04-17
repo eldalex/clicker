@@ -20,8 +20,6 @@
 - `Snake`
 - `Keyboard Invaders`
 
-Подробнее: [docs/game-site.md](docs/game-site.md).
-
 ## Локальный запуск
 
 Backend:
@@ -62,11 +60,3 @@ docker run -p 3000:3000 clicker
 cd frontend
 npm test
 ```
-
-## Документация
-
-- [Game site](docs/game-site.md)
-- [API](docs/api.md)
-- [Deployment](docs/deployment.md)
-- [Client troubleshooting](docs/troubleshooting-client.md)
-- [Server troubleshooting](docs/troubleshooting-server.md)
