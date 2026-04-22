@@ -6,6 +6,13 @@
     state: present
     update_cache: yes
 
+- name: Open tcp port 80 in UFW
+  ufw:
+    rule: allow
+    port: '80'
+    proto: tcp
+  when: not ansible_check_mode
+
 - name: Deploy main nginx.conf with proper includes
   template:
     src: nginx-main.conf.j2
